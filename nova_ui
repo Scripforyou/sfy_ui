@@ -22,6 +22,7 @@ function NovaUI:CreateWindow(config)
     ScreenGui.Parent = game.CoreGui
     ScreenGui.Name = "NovaUI"
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.ResetOnSpawn = false
     
     MainFrame.Parent = ScreenGui
     MainFrame.Size = Window.Size
@@ -63,6 +64,7 @@ function NovaUI:CreateWindow(config)
     CloseButton.Text = "X"
     CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     CloseButton.TextSize = 12
+    CloseButton.BorderSizePixel = 0
     
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
@@ -118,7 +120,6 @@ function NovaUI:CreateWindow(config)
     function Window:CreateTab(name)
         local Tab = {}
         Tab.Name = name
-        Tab.Buttons = {}
         Tab.Sections = {}
         
         -- Create Tab Button
@@ -203,7 +204,6 @@ function NovaUI:CreateWindow(config)
             
             -- Toggle Element
             function Section:CreateToggle(config)
-                local Toggle = {}
                 config = config or {}
                 
                 local ToggleFrame = Instance.new("Frame")
@@ -259,12 +259,24 @@ function NovaUI:CreateWindow(config)
                     end
                 end)
                 
-                return Toggle
+                local ToggleObject = {}
+                function ToggleObject:Set(value)
+                    state = value
+                    updateToggle()
+                    if config.Callback then
+                        config.Callback(state)
+                    end
+                end
+                
+                function ToggleObject:Get()
+                    return state
+                end
+                
+                return ToggleObject
             end
             
             -- Button Element
             function Section:CreateButton(config)
-                local Button = {}
                 config = config or {}
                 
                 local ButtonFrame = Instance.new("TextButton")
@@ -282,12 +294,16 @@ function NovaUI:CreateWindow(config)
                     end
                 end)
                 
-                return Button
+                local ButtonObject = {}
+                function ButtonObject:SetText(text)
+                    ButtonFrame.Text = text
+                end
+                
+                return ButtonObject
             end
             
             -- Slider Element
             function Section:CreateSlider(config)
-                local Slider = {}
                 config = config or {}
                 
                 local min = config.Min or 0
@@ -342,15 +358,17 @@ function NovaUI:CreateWindow(config)
                 SliderButton.BorderSizePixel = 0
                 
                 local dragging = false
+                local currentValue = default
                 
                 local function updateSlider(value)
-                    local percent = (value - min) / (max - min)
+                    currentValue = math.floor(value)
+                    local percent = (currentValue - min) / (max - min)
                     SliderFill.Size = UDim2.new(percent, 0, 1, 0)
                     SliderButton.Position = UDim2.new(percent, -6, 0.5, -6)
-                    ValueLabel.Text = tostring(math.floor(value))
+                    ValueLabel.Text = tostring(currentValue)
                     
                     if config.Callback then
-                        config.Callback(value)
+                        config.Callback(currentValue)
                     end
                 end
                 
@@ -379,7 +397,72 @@ function NovaUI:CreateWindow(config)
                     end
                 end)
                 
-                return Slider
+                local SliderObject = {}
+                function SliderObject:Set(value)
+                    updateSlider(math.clamp(value, min, max))
+                end
+                
+                function SliderObject:Get()
+                    return currentValue
+                end
+                
+                return SliderObject
+            end
+            
+            -- Dropdown Element
+            function Section:CreateDropdown(config)
+                config = config or {}
+                
+                local DropdownFrame = Instance.new("Frame")
+                DropdownFrame.Parent = ElementsContainer
+                DropdownFrame.Size = UDim2.new(1, 0, 0, 30)
+                DropdownFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+                DropdownFrame.BorderSizePixel = 0
+                
+                local DropdownLabel = Instance.new("TextLabel")
+                DropdownLabel.Parent = DropdownFrame
+                DropdownLabel.Size = UDim2.new(0.7, 0, 1, 0)
+                DropdownLabel.Position = UDim2.new(0, 10, 0, 0)
+                DropdownLabel.BackgroundTransparency = 1
+                DropdownLabel.Text = config.Title or "Dropdown"
+                DropdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                DropdownLabel.TextSize = 12
+                DropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+                
+                local DropdownButton = Instance.new("TextButton")
+                DropdownButton.Parent = DropdownFrame
+                DropdownButton.Size = UDim2.new(0.25, 0, 0, 20)
+                DropdownButton.Position = UDim2.new(0.75, -5, 0.5, -10)
+                DropdownButton.BackgroundColor3 = Color3.fromRGB(70, 70, 75)
+                DropdownButton.Text = config.Default or config.Options[1] or "Select"
+                DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                DropdownButton.TextSize = 11
+                DropdownButton.BorderSizePixel = 0
+                
+                local currentOption = config.Default or config.Options[1]
+                local isOpen = false
+                
+                DropdownButton.MouseButton1Click:Connect(function()
+                    -- Dropdown functionality would go here
+                    if config.Callback then
+                        config.Callback(currentOption)
+                    end
+                end)
+                
+                local DropdownObject = {}
+                function DropdownObject:Set(option)
+                    currentOption = option
+                    DropdownButton.Text = option
+                    if config.Callback then
+                        config.Callback(option)
+                    end
+                end
+                
+                function DropdownObject:Get()
+                    return currentOption
+                end
+                
+                return DropdownObject
             end
             
             table.insert(Tab.Sections, Section)
@@ -402,38 +485,3 @@ function NovaUI:CreateWindow(config)
 end
 
 return NovaUI
-
--- Usage Example:
-local Window = NovaUI:CreateWindow({
-    Title = "NovaUI Hub",
-    Theme = "Dark",
-    Size = UDim2.new(0, 500, 0, 400)
-})
-
-local MainTab = Window:CreateTab("Main")
-local Section = MainTab:CreateSection("Features")
-
-Section:CreateToggle({
-    Title = "Auto Farm",
-    Default = false,
-    Callback = function(Value)
-        print("Auto Farm:", Value)
-    end
-})
-
-Section:CreateButton({
-    Title = "Start Farming",
-    Callback = function()
-        print("Farming started!")
-    end
-})
-
-Section:CreateSlider({
-    Title = "Walk Speed",
-    Min = 16,
-    Max = 100,
-    Default = 16,
-    Callback = function(Value)
-        print("Walk Speed:", Value)
-    end
-})
