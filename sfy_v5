@@ -630,125 +630,121 @@ function GuiLibrary:CreateSlider(tab, sliderName, minValue, maxValue, defaultVal
 	
 	return slider
 end
-
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, defaultSelections, callback)
-	local dropdown = Instance.new("TextButton")
-	dropdown.Name = dropdownName
-	dropdown.Size = UDim2.new(1, 0, 0, 35)
-	dropdown.BackgroundColor3 = Theme.Secondary
-	dropdown.BorderSizePixel = 0
-	dropdown.Text = ""
-	dropdown.Parent = tab.Frame
+	local multiDropdown = Instance.new("TextButton")
+	multiDropdown.Name = dropdownName
+	multiDropdown.Size = UDim2.new(1, 0, 0, 35)
+	multiDropdown.BackgroundColor3 = Theme.Secondary
+	multiDropdown.BorderSizePixel = 0
+	multiDropdown.Text = ""
+	multiDropdown.Parent = tab.Frame
 	
-	local dropdownCorner = Instance.new("UICorner")
-	dropdownCorner.CornerRadius = UDim.new(0, 8)
-	dropdownCorner.Parent = dropdown
+	local multiDropdownCorner = Instance.new("UICorner")
+	multiDropdownCorner.CornerRadius = UDim.new(0, 8)
+	multiDropdownCorner.Parent = multiDropdown
 	
-	local label = Instance.new("TextLabel")
-	label.Name = "Label"
-	label.Size = UDim2.new(0.4, 0, 1, 0)
-	label.Position = UDim2.new(0, 15, 0, 0)
-	label.BackgroundTransparency = 1
-	label.Text = dropdownName
-	label.TextColor3 = Theme.Text
-	label.TextSize = 14
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Font = Enum.Font.Gotham
-	label.Parent = dropdown
+	local multiLabel = Instance.new("TextLabel")
+	multiLabel.Name = "Label"
+	multiLabel.Size = UDim2.new(0.4, 0, 1, 0)
+	multiLabel.Position = UDim2.new(0, 15, 0, 0)
+	multiLabel.BackgroundTransparency = 1
+	multiLabel.Text = dropdownName
+	multiLabel.TextColor3 = Theme.Text
+	multiLabel.TextSize = 14
+	multiLabel.TextXAlignment = Enum.TextXAlignment.Left
+	multiLabel.Font = Enum.Font.Gotham
+	multiLabel.Parent = multiDropdown
 	
-	local valueLabel = Instance.new("TextLabel")
-	valueLabel.Name = "Value"
-	valueLabel.Size = UDim2.new(0.45, 0, 1, 0)
-	valueLabel.Position = UDim2.new(0.4, 0, 0, 0)
-	valueLabel.BackgroundTransparency = 1
-	valueLabel.Text = "Select..."
-	valueLabel.TextColor3 = Theme.TextSecondary
-	valueLabel.TextSize = 11
-	valueLabel.TextXAlignment = Enum.TextXAlignment.Left
-	valueLabel.TextWrapped = true
-	valueLabel.Font = Enum.Font.Gotham
-	valueLabel.Parent = dropdown
+	local multiValueLabel = Instance.new("TextLabel")
+	multiValueLabel.Name = "Value"
+	multiValueLabel.Size = UDim2.new(0.45, 0, 1, 0)
+	multiValueLabel.Position = UDim2.new(0.4, 0, 0, 0)
+	multiValueLabel.BackgroundTransparency = 1
+	multiValueLabel.Text = "Select..."
+	multiValueLabel.TextColor3 = Theme.TextSecondary
+	multiValueLabel.TextSize = 11
+	multiValueLabel.TextXAlignment = Enum.TextXAlignment.Left
+	multiValueLabel.TextWrapped = true
+	multiValueLabel.Font = Enum.Font.Gotham
+	multiValueLabel.Parent = multiDropdown
 	
-	local arrow = Instance.new("TextLabel")
-	arrow.Name = "Arrow"
-	arrow.Size = UDim2.new(0, 20, 0, 20)
-	arrow.Position = UDim2.new(1, -25, 0.5, -10)
-	arrow.BackgroundTransparency = 1
-	arrow.Text = "▼"
-	arrow.TextColor3 = Theme.TextSecondary
-	arrow.TextSize = 12
-	arrow.Font = Enum.Font.Gotham
-	arrow.Parent = dropdown
+	local multiArrow = Instance.new("TextLabel")
+	multiArrow.Name = "Arrow"
+	multiArrow.Size = UDim2.new(0, 20, 0, 20)
+	multiArrow.Position = UDim2.new(1, -25, 0.5, -10)
+	multiArrow.BackgroundTransparency = 1
+	multiArrow.Text = "▼"
+	multiArrow.TextColor3 = Theme.TextSecondary
+	multiArrow.TextSize = 12
+	multiArrow.Font = Enum.Font.Gotham
+	multiArrow.Parent = multiDropdown
 	
-	-- Dropdown Options
-	local optionsFrame = Instance.new("ScrollingFrame")
-	optionsFrame.Name = "Options"
-	optionsFrame.Size = UDim2.new(1, 0, 0, 0)
-	optionsFrame.Position = UDim2.new(0, 0, 1, 5)
-	optionsFrame.BackgroundColor3 = Theme.Secondary
-	optionsFrame.BorderSizePixel = 0
-	optionsFrame.ScrollBarThickness = 4
-	optionsFrame.ScrollBarImageColor3 = Theme.Accent
-	optionsFrame.Visible = false
-	optionsFrame.ClipsDescendants = true
-	optionsFrame.Parent = dropdown
+	-- Multi Dropdown Options
+	local multiOptionsFrame = Instance.new("ScrollingFrame")
+	multiOptionsFrame.Name = "Options"
+	multiOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
+	multiOptionsFrame.Position = UDim2.new(0, 0, 1, 5)
+	multiOptionsFrame.BackgroundColor3 = Theme.Secondary
+	multiOptionsFrame.BorderSizePixel = 0
+	multiOptionsFrame.ScrollBarThickness = 4
+	multiOptionsFrame.ScrollBarImageColor3 = Theme.Accent
+	multiOptionsFrame.Visible = false
+	multiOptionsFrame.ClipsDescendants = true
+	multiOptionsFrame.Parent = multiDropdown
 	
-	local optionsCorner = Instance.new("UICorner")
-	optionsCorner.CornerRadius = UDim.new(0, 8)
-	optionsCorner.Parent = optionsFrame
+	local multiOptionsCorner = Instance.new("UICorner")
+	multiOptionsCorner.CornerRadius = UDim.new(0, 8)
+	multiOptionsCorner.Parent = multiOptionsFrame
 	
-	local optionsLayout = Instance.new("UIListLayout")
-	optionsLayout.Padding = UDim.new(0, 2)
-	optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	optionsLayout.Parent = optionsFrame
+	local multiOptionsLayout = Instance.new("UIListLayout")
+	multiOptionsLayout.Padding = UDim.new(0, 2)
+	multiOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	multiOptionsLayout.Parent = multiOptionsFrame
 	
-	local optionsPadding = Instance.new("UIPadding")
-	optionsPadding.PaddingTop = UDim.new(0, 5)
-	optionsPadding.PaddingBottom = UDim.new(0, 5)
-	optionsPadding.PaddingLeft = UDim.new(0, 5)
-	optionsPadding.PaddingRight = UDim.new(0, 5)
-	optionsPadding.Parent = optionsFrame
+	local multiOptionsPadding = Instance.new("UIPadding")
+	multiOptionsPadding.PaddingTop = UDim.new(0, 5)
+	multiOptionsPadding.PaddingBottom = UDim.new(0, 5)
+	multiOptionsPadding.PaddingLeft = UDim.new(0, 5)
+	multiOptionsPadding.PaddingRight = UDim.new(0, 5)
+	multiOptionsPadding.Parent = multiOptionsFrame
 	
-	local isOpen = false
-	local selectedOptions = defaultSelections or {}
-	local optionStates = {}
+	local multiIsOpen = false
+	local multiSelectedOptions = defaultSelections or {}
+	local multiOptionStates = {}
 	
-	-- Process options table (supports both array and category table)
-	local allOptions = {}
-	local categories = {}
+	-- Process options table for multi dropdown
+	local multiAllOptions = {}
+	local multiCategories = {}
 	
 	if type(optionsTable) == "table" then
-		-- Check if it's a category table (has string keys that aren't numbers)
-		local isCategoryTable = false
+		local isMultiCategoryTable = false
 		for k, v in pairs(optionsTable) do
 			if type(k) == "string" and not tonumber(k) then
-				isCategoryTable = true
+				isMultiCategoryTable = true
 				break
 			end
 		end
 		
-		if isCategoryTable then
-			-- It's a category table like {food = {"banana", "mango"}, drinks = {"water", "juice"}}
-			categories = optionsTable
+		if isMultiCategoryTable then
+			multiCategories = optionsTable
 			for categoryName, items in pairs(optionsTable) do
 				if type(items) == "table" then
 					for _, item in ipairs(items) do
-						table.insert(allOptions, {
+						table.insert(multiAllOptions, {
 							value = item,
 							category = categoryName
 						})
 					end
 				else
-					table.insert(allOptions, {
+					table.insert(multiAllOptions, {
 						value = items,
 						category = categoryName
 					})
 				end
 			end
 		else
-			-- It's a simple array table like {"banana", "mango", "apple"}
 			for _, item in ipairs(optionsTable) do
-				table.insert(allOptions, {
+				table.insert(multiAllOptions, {
 					value = item,
 					category = nil
 				})
@@ -756,25 +752,25 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, default
 		end
 	end
 	
-	-- Initialize option states
-	for _, optionData in ipairs(allOptions) do
-		optionStates[optionData.value] = false
+	-- Initialize multi option states
+	for _, optionData in ipairs(multiAllOptions) do
+		multiOptionStates[optionData.value] = false
 	end
 	
-	-- Set default selections
+	-- Set default multi selections
 	if defaultSelections then
 		for _, option in ipairs(defaultSelections) do
-			if optionStates[option] ~= nil then
-				optionStates[option] = true
+			if multiOptionStates[option] ~= nil then
+				multiOptionStates[option] = true
 			end
 		end
 	end
 	
-	local function updateDisplayText()
+	local function updateMultiDisplayText()
 		local selectedCount = 0
 		local displayText = ""
 		
-		for optionValue, isSelected in pairs(optionStates) do
+		for optionValue, isSelected in pairs(multiOptionStates) do
 			if isSelected then
 				selectedCount = selectedCount + 1
 				if selectedCount == 1 then
@@ -789,27 +785,26 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, default
 		end
 		
 		if selectedCount == 0 then
-			valueLabel.Text = "Select..."
+			multiValueLabel.Text = "Select..."
 		else
-			valueLabel.Text = displayText
+			multiValueLabel.Text = displayText
 		end
 		
-		-- Update selected options table
-		selectedOptions = {}
-		for optionValue, isSelected in pairs(optionStates) do
+		-- Update multi selected options table
+		multiSelectedOptions = {}
+		for optionValue, isSelected in pairs(multiOptionStates) do
 			if isSelected then
-				table.insert(selectedOptions, optionValue)
+				table.insert(multiSelectedOptions, optionValue)
 			end
 		end
 	end
 	
-	updateDisplayText()
+	updateMultiDisplayText()
 	
-	-- Create category sections if we have categories
-	local categorySections = {}
-	if next(categories) then
-		for categoryName, items in pairs(categories) do
-			-- Category header
+	-- Create multi category sections
+	local multiCategorySections = {}
+	if next(multiCategories) then
+		for categoryName, items in pairs(multiCategories) do
 			local categoryHeader = Instance.new("TextLabel")
 			categoryHeader.Name = categoryName
 			categoryHeader.Size = UDim2.new(1, 0, 0, 20)
@@ -819,198 +814,186 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, default
 			categoryHeader.TextSize = 12
 			categoryHeader.TextXAlignment = Enum.TextXAlignment.Left
 			categoryHeader.Font = Enum.Font.GothamBold
-			categoryHeader.LayoutOrder = #categorySections * 100
-			categoryHeader.Parent = optionsFrame
+			categoryHeader.LayoutOrder = #multiCategorySections * 100
+			categoryHeader.Parent = multiOptionsFrame
 			
-			-- Store category info
-			categorySections[categoryName] = {
+			multiCategorySections[categoryName] = {
 				Header = categoryHeader,
 				Items = {}
 			}
 		end
 	end
 	
-	-- Create option buttons with checkboxes
-	local optionButtons = {}
-	for i, optionData in ipairs(allOptions) do
+	-- Create multi option buttons with checkboxes
+	local multiOptionButtons = {}
+	for i, optionData in ipairs(multiAllOptions) do
 		local optionValue = optionData.value
 		local categoryName = optionData.category
 		
-		local optionButton = Instance.new("TextButton")
-		optionButton.Name = optionValue
-		optionButton.Size = UDim2.new(1, 0, 0, 25)
-		optionButton.BackgroundColor3 = Theme.Secondary
-		optionButton.BorderSizePixel = 0
-		optionButton.Text = ""
+		local multiOptionButton = Instance.new("TextButton")
+		multiOptionButton.Name = optionValue
+		multiOptionButton.Size = UDim2.new(1, 0, 0, 25)
+		multiOptionButton.BackgroundColor3 = Theme.Secondary
+		multiOptionButton.BorderSizePixel = 0
+		multiOptionButton.Text = ""
 		
-		-- Set layout order based on category
-		if categoryName and categorySections[categoryName] then
-			optionButton.LayoutOrder = categorySections[categoryName].Header.LayoutOrder + #categorySections[categoryName].Items + 1
+		if categoryName and multiCategorySections[categoryName] then
+			multiOptionButton.LayoutOrder = multiCategorySections[categoryName].Header.LayoutOrder + #multiCategorySections[categoryName].Items + 1
 		else
-			optionButton.LayoutOrder = i
+			multiOptionButton.LayoutOrder = i
 		end
 		
-		optionButton.Parent = optionsFrame
+		multiOptionButton.Parent = multiOptionsFrame
 		
-		local optionCorner = Instance.new("UICorner")
-		optionCorner.CornerRadius = UDim.new(0, 6)
-		optionCorner.Parent = optionButton
+		local multiOptionCorner = Instance.new("UICorner")
+		multiOptionCorner.CornerRadius = UDim.new(0, 6)
+		multiOptionCorner.Parent = multiOptionButton
 		
-		local checkbox = Instance.new("Frame")
-		checkbox.Name = "Checkbox"
-		checkbox.Size = UDim2.new(0, 16, 0, 16)
-		checkbox.Position = UDim2.new(0, 8, 0.5, -8)
-		checkbox.BackgroundColor3 = Theme.Secondary
-		checkbox.BorderSizePixel = 0
-		checkbox.Parent = optionButton
+		local multiCheckbox = Instance.new("Frame")
+		multiCheckbox.Name = "Checkbox"
+		multiCheckbox.Size = UDim2.new(0, 16, 0, 16)
+		multiCheckbox.Position = UDim2.new(0, 8, 0.5, -8)
+		multiCheckbox.BackgroundColor3 = Theme.Secondary
+		multiCheckbox.BorderSizePixel = 0
+		multiCheckbox.Parent = multiOptionButton
 		
-		local checkboxCorner = Instance.new("UICorner")
-		checkboxCorner.CornerRadius = UDim.new(0, 4)
-		checkboxCorner.Parent = checkbox
+		local multiCheckboxCorner = Instance.new("UICorner")
+		multiCheckboxCorner.CornerRadius = UDim.new(0, 4)
+		multiCheckboxCorner.Parent = multiCheckbox
 		
-		local checkmark = Instance.new("ImageLabel")
-		checkmark.Name = "Checkmark"
-		checkmark.Size = UDim2.new(0, 12, 0, 12)
-		checkmark.Position = UDim2.new(0.5, -6, 0.5, -6)
-		checkmark.BackgroundTransparency = 1
-		checkmark.Image = "rbxassetid://10734996880" -- Checkmark icon
-		checkmark.ImageColor3 = Theme.Text
-		checkmark.Visible = false
-		checkmark.Parent = checkbox
+		local multiCheckmark = Instance.new("ImageLabel")
+		multiCheckmark.Name = "Checkmark"
+		multiCheckmark.Size = UDim2.new(0, 12, 0, 12)
+		multiCheckmark.Position = UDim2.new(0.5, -6, 0.5, -6)
+		multiCheckmark.BackgroundTransparency = 1
+		multiCheckmark.Image = "rbxassetid://10734996880"
+		multiCheckmark.ImageColor3 = Theme.Text
+		multiCheckmark.Visible = false
+		multiCheckmark.Parent = multiCheckbox
 		
-		local optionText = Instance.new("TextLabel")
-		optionText.Name = "Text"
-		optionText.Size = UDim2.new(1, -35, 1, 0)
-		optionText.Position = UDim2.new(0, 30, 0, 0)
-		optionText.BackgroundTransparency = 1
-		optionText.Text = optionValue
-		optionText.TextColor3 = Theme.TextSecondary
-		optionText.TextSize = 12
-		optionText.TextXAlignment = Enum.TextXAlignment.Left
-		optionText.Font = Enum.Font.Gotham
-		optionText.Parent = optionButton
+		local multiOptionText = Instance.new("TextLabel")
+		multiOptionText.Name = "Text"
+		multiOptionText.Size = UDim2.new(1, -35, 1, 0)
+		multiOptionText.Position = UDim2.new(0, 30, 0, 0)
+		multiOptionText.BackgroundTransparency = 1
+		multiOptionText.Text = optionValue
+		multiOptionText.TextColor3 = Theme.TextSecondary
+		multiOptionText.TextSize = 12
+		multiOptionText.TextXAlignment = Enum.TextXAlignment.Left
+		multiOptionText.Font = Enum.Font.Gotham
+		multiOptionText.Parent = multiOptionButton
 		
-		-- Update checkbox appearance based on current state
-		local function updateCheckbox()
-			if optionStates[optionValue] then
-				checkbox.BackgroundColor3 = Theme.Accent
-				checkmark.Visible = true
-				optionText.TextColor3 = Theme.Text
+		local function updateMultiCheckbox()
+			if multiOptionStates[optionValue] then
+				multiCheckbox.BackgroundColor3 = Theme.Accent
+				multiCheckmark.Visible = true
+				multiOptionText.TextColor3 = Theme.Text
 			else
-				checkbox.BackgroundColor3 = Theme.Secondary
-				checkmark.Visible = false
-				optionText.TextColor3 = Theme.TextSecondary
+				multiCheckbox.BackgroundColor3 = Theme.Secondary
+				multiCheckmark.Visible = false
+				multiOptionText.TextColor3 = Theme.TextSecondary
 			end
 		end
 		
-		updateCheckbox()
+		updateMultiCheckbox()
 		
-		-- Toggle selection
-		optionButton.MouseButton1Click:Connect(function()
-			optionStates[optionValue] = not optionStates[optionValue]
-			updateCheckbox()
-			updateDisplayText()
+		multiOptionButton.MouseButton1Click:Connect(function()
+			multiOptionStates[optionValue] = not multiOptionStates[optionValue]
+			updateMultiCheckbox()
+			updateMultiDisplayText()
 			
 			if callback then
-				callback(selectedOptions, optionValue, optionStates[optionValue])
+				callback(multiSelectedOptions, optionValue, multiOptionStates[optionValue])
 			end
 		end)
 		
-		-- Hover effects
-		optionButton.MouseEnter:Connect(function()
+		multiOptionButton.MouseEnter:Connect(function()
 			if not isMobile then
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+				TweenService:Create(multiOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
 			end
 		end)
 		
-		optionButton.MouseLeave:Connect(function()
+		multiOptionButton.MouseLeave:Connect(function()
 			if not isMobile then
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+				TweenService:Create(multiOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
 			end
 		end)
 		
-		-- Store in category if applicable
-		if categoryName and categorySections[categoryName] then
-			table.insert(categorySections[categoryName].Items, optionButton)
+		if categoryName and multiCategorySections[categoryName] then
+			table.insert(multiCategorySections[categoryName].Items, multiOptionButton)
 		end
 		
-		table.insert(optionButtons, optionButton)
+		table.insert(multiOptionButtons, multiOptionButton)
 	end
 	
-	-- Update scrolling frame size
-	optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		optionsFrame.CanvasSize = UDim2.new(0, 0, 0, optionsLayout.AbsoluteContentSize.Y + 10)
+	multiOptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		multiOptionsFrame.CanvasSize = UDim2.new(0, 0, 0, multiOptionsLayout.AbsoluteContentSize.Y + 10)
 	end)
 	
-	-- Toggle dropdown
-	dropdown.MouseButton1Click:Connect(function()
-		isOpen = not isOpen
+	multiDropdown.MouseButton1Click:Connect(function()
+		multiIsOpen = not multiIsOpen
 		
-		if isOpen then
-			optionsFrame.Visible = true
-			local height = math.min(optionsLayout.AbsoluteContentSize.Y + 10, 250) -- Max height 250
-			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
-			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
+		if multiIsOpen then
+			multiOptionsFrame.Visible = true
+			local height = math.min(multiOptionsLayout.AbsoluteContentSize.Y + 10, 250)
+			TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+			TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
 		else
-			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+			TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 			wait(0.2)
-			optionsFrame.Visible = false
+			multiOptionsFrame.Visible = false
 		end
 	end)
 	
-	-- Close dropdown when clicking outside
-	local function closeDropdown(input)
-		if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
+	local function closeMultiDropdown(input)
+		if multiIsOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
 			local mousePos = input.Position
-			local dropdownAbsPos = dropdown.AbsolutePosition
-			local dropdownSize = dropdown.AbsoluteSize
-			local optionsAbsPos = optionsFrame.AbsolutePosition
-			local optionsSize = optionsFrame.AbsoluteSize
+			local dropdownAbsPos = multiDropdown.AbsolutePosition
+			local dropdownSize = multiDropdown.AbsoluteSize
+			local optionsAbsPos = multiOptionsFrame.AbsolutePosition
+			local optionsSize = multiOptionsFrame.AbsoluteSize
 			
 			if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
 				   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
-				isOpen = false
-				TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-				TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+				multiIsOpen = false
+				TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+				TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 				wait(0.2)
-				optionsFrame.Visible = false
+				multiOptionsFrame.Visible = false
 			end
 		end
 	end
 	
-	UserInputService.InputBegan:Connect(closeDropdown)
+	UserInputService.InputBegan:Connect(closeMultiDropdown)
 	
-	-- Function to get current selections
-	function dropdown:GetSelections()
-		return selectedOptions
+	function multiDropdown:GetSelections()
+		return multiSelectedOptions
 	end
 	
-	-- Function to set selections
-	function dropdown:SetSelections(selections)
-		for optionValue, _ in pairs(optionStates) do
-			optionStates[optionValue] = false
+	function multiDropdown:SetSelections(selections)
+		for optionValue, _ in pairs(multiOptionStates) do
+			multiOptionStates[optionValue] = false
 		end
 		
 		if selections then
 			for _, optionValue in ipairs(selections) do
-				if optionStates[optionValue] ~= nil then
-					optionStates[optionValue] = true
+				if multiOptionStates[optionValue] ~= nil then
+					multiOptionStates[optionValue] = true
 				end
 			end
 		end
 		
-		updateDisplayText()
+		updateMultiDisplayText()
 		
-		-- Update checkboxes
-		for _, optionButton in ipairs(optionButtons) do
-			local optionValue = optionButton.Name
-			local checkbox = optionButton:FindFirstChild("Checkbox")
+		for _, multiOptionButton in ipairs(multiOptionButtons) do
+			local optionValue = multiOptionButton.Name
+			local checkbox = multiOptionButton:FindFirstChild("Checkbox")
 			local checkmark = checkbox and checkbox:FindFirstChild("Checkmark")
-			local optionText = optionButton:FindFirstChild("Text")
+			local optionText = multiOptionButton:FindFirstChild("Text")
 			
 			if checkbox and checkmark and optionText then
-				if optionStates[optionValue] then
+				if multiOptionStates[optionValue] then
 					checkbox.BackgroundColor3 = Theme.Accent
 					checkmark.Visible = true
 					optionText.TextColor3 = Theme.Text
@@ -1023,133 +1006,126 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, default
 		end
 	end
 	
-	-- Function to clear all selections
-	function dropdown:ClearSelections()
-		dropdown:SetSelections({})
+	function multiDropdown:ClearSelections()
+		multiDropdown:SetSelections({})
 	end
-
-
 	
-	return dropdown
+	return multiDropdown
 end
 
-
 function GuiLibrary:CreateDropdown(tab, dropdownName, optionsTable, defaultSelection, callback)
-	local dropdown = Instance.new("TextButton")
-	dropdown.Name = dropdownName
-	dropdown.Size = UDim2.new(1, 0, 0, 35)
-	dropdown.BackgroundColor3 = Theme.Secondary
-	dropdown.BorderSizePixel = 0
-	dropdown.Text = ""
-	dropdown.Parent = tab.Frame
+	local singleDropdown = Instance.new("TextButton")
+	singleDropdown.Name = dropdownName
+	singleDropdown.Size = UDim2.new(1, 0, 0, 35)
+	singleDropdown.BackgroundColor3 = Theme.Secondary
+	singleDropdown.BorderSizePixel = 0
+	singleDropdown.Text = ""
+	singleDropdown.Parent = tab.Frame
 	
-	local dropdownCorner = Instance.new("UICorner")
-	dropdownCorner.CornerRadius = UDim.new(0, 8)
-	dropdownCorner.Parent = dropdown
+	local singleDropdownCorner = Instance.new("UICorner")
+	singleDropdownCorner.CornerRadius = UDim.new(0, 8)
+	singleDropdownCorner.Parent = singleDropdown
 	
-	local label = Instance.new("TextLabel")
-	label.Name = "Label"
-	label.Size = UDim2.new(0.7, 0, 1, 0)
-	label.Position = UDim2.new(0, 15, 0, 0)
-	label.BackgroundTransparency = 1
-	label.Text = dropdownName
-	label.TextColor3 = Theme.Text
-	label.TextSize = 14
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Font = Enum.Font.Gotham
-	label.Parent = dropdown
+	local singleLabel = Instance.new("TextLabel")
+	singleLabel.Name = "Label"
+	singleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+	singleLabel.Position = UDim2.new(0, 15, 0, 0)
+	singleLabel.BackgroundTransparency = 1
+	singleLabel.Text = dropdownName
+	singleLabel.TextColor3 = Theme.Text
+	singleLabel.TextSize = 14
+	singleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	singleLabel.Font = Enum.Font.Gotham
+	singleLabel.Parent = singleDropdown
 	
-	local valueLabel = Instance.new("TextLabel")
-	valueLabel.Name = "Value"
-	valueLabel.Size = UDim2.new(0.25, 0, 1, 0)
-	valueLabel.Position = UDim2.new(0.75, 0, 0, 0)
-	valueLabel.BackgroundTransparency = 1
-	valueLabel.Text = defaultSelection or "Select..."
-	valueLabel.TextColor3 = Theme.TextSecondary
-	valueLabel.TextSize = 12
-	valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-	valueLabel.Font = Enum.Font.Gotham
-	valueLabel.Parent = dropdown
+	local singleValueLabel = Instance.new("TextLabel")
+	singleValueLabel.Name = "Value"
+	singleValueLabel.Size = UDim2.new(0.25, 0, 1, 0)
+	singleValueLabel.Position = UDim2.new(0.75, 0, 0, 0)
+	singleValueLabel.BackgroundTransparency = 1
+	singleValueLabel.Text = defaultSelection or "Select..."
+	singleValueLabel.TextColor3 = Theme.TextSecondary
+	singleValueLabel.TextSize = 12
+	singleValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+	singleValueLabel.Font = Enum.Font.Gotham
+	singleValueLabel.Parent = singleDropdown
 	
-	local arrow = Instance.new("TextLabel")
-	arrow.Name = "Arrow"
-	arrow.Size = UDim2.new(0, 20, 0, 20)
-	arrow.Position = UDim2.new(1, -25, 0.5, -10)
-	arrow.BackgroundTransparency = 1
-	arrow.Text = "▼"
-	arrow.TextColor3 = Theme.TextSecondary
-	arrow.TextSize = 12
-	arrow.Font = Enum.Font.Gotham
-	arrow.Parent = dropdown
+	local singleArrow = Instance.new("TextLabel")
+	singleArrow.Name = "Arrow"
+	singleArrow.Size = UDim2.new(0, 20, 0, 20)
+	singleArrow.Position = UDim2.new(1, -25, 0.5, -10)
+	singleArrow.BackgroundTransparency = 1
+	singleArrow.Text = "▼"
+	singleArrow.TextColor3 = Theme.TextSecondary
+	singleArrow.TextSize = 12
+	singleArrow.Font = Enum.Font.Gotham
+	singleArrow.Parent = singleDropdown
 	
-	-- Dropdown Options
-	local optionsFrame = Instance.new("ScrollingFrame")
-	optionsFrame.Name = "Options"
-	optionsFrame.Size = UDim2.new(1, 0, 0, 0)
-	optionsFrame.Position = UDim2.new(0, 0, 1, 5)
-	optionsFrame.BackgroundColor3 = Theme.Secondary
-	optionsFrame.BorderSizePixel = 0
-	optionsFrame.ScrollBarThickness = 4
-	optionsFrame.ScrollBarImageColor3 = Theme.Accent
-	optionsFrame.Visible = false
-	optionsFrame.ClipsDescendants = true
-	optionsFrame.Parent = dropdown
+	-- Single Dropdown Options
+	local singleOptionsFrame = Instance.new("ScrollingFrame")
+	singleOptionsFrame.Name = "Options"
+	singleOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
+	singleOptionsFrame.Position = UDim2.new(0, 0, 1, 5)
+	singleOptionsFrame.BackgroundColor3 = Theme.Secondary
+	singleOptionsFrame.BorderSizePixel = 0
+	singleOptionsFrame.ScrollBarThickness = 4
+	singleOptionsFrame.ScrollBarImageColor3 = Theme.Accent
+	singleOptionsFrame.Visible = false
+	singleOptionsFrame.ClipsDescendants = true
+	singleOptionsFrame.Parent = singleDropdown
 	
-	local optionsCorner = Instance.new("UICorner")
-	optionsCorner.CornerRadius = UDim.new(0, 8)
-	optionsCorner.Parent = optionsFrame
+	local singleOptionsCorner = Instance.new("UICorner")
+	singleOptionsCorner.CornerRadius = UDim.new(0, 8)
+	singleOptionsCorner.Parent = singleOptionsFrame
 	
-	local optionsLayout = Instance.new("UIListLayout")
-	optionsLayout.Padding = UDim.new(0, 2)
-	optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	optionsLayout.Parent = optionsFrame
+	local singleOptionsLayout = Instance.new("UIListLayout")
+	singleOptionsLayout.Padding = UDim.new(0, 2)
+	singleOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	singleOptionsLayout.Parent = singleOptionsFrame
 	
-	local optionsPadding = Instance.new("UIPadding")
-	optionsPadding.PaddingTop = UDim.new(0, 5)
-	optionsPadding.PaddingBottom = UDim.new(0, 5)
-	optionsPadding.PaddingLeft = UDim.new(0, 5)
-	optionsPadding.PaddingRight = UDim.new(0, 5)
-	optionsPadding.Parent = optionsFrame
+	local singleOptionsPadding = Instance.new("UIPadding")
+	singleOptionsPadding.PaddingTop = UDim.new(0, 5)
+	singleOptionsPadding.PaddingBottom = UDim.new(0, 5)
+	singleOptionsPadding.PaddingLeft = UDim.new(0, 5)
+	singleOptionsPadding.PaddingRight = UDim.new(0, 5)
+	singleOptionsPadding.Parent = singleOptionsFrame
 	
-	local isOpen = false
-	local selectedOption = defaultSelection
+	local singleIsOpen = false
+	local singleSelectedOption = defaultSelection
 	
-	-- Process options table (supports both array and category table)
-	local allOptions = {}
-	local categories = {}
+	-- Process options table for single dropdown
+	local singleAllOptions = {}
+	local singleCategories = {}
 	
 	if type(optionsTable) == "table" then
-		-- Check if it's a category table (has string keys that aren't numbers)
-		local isCategoryTable = false
+		local isSingleCategoryTable = false
 		for k, v in pairs(optionsTable) do
 			if type(k) == "string" and not tonumber(k) then
-				isCategoryTable = true
+				isSingleCategoryTable = true
 				break
 			end
 		end
 		
-		if isCategoryTable then
-			-- It's a category table like {food = {"banana", "mango"}, drinks = {"water", "juice"}}
-			categories = optionsTable
+		if isSingleCategoryTable then
+			singleCategories = optionsTable
 			for categoryName, items in pairs(optionsTable) do
 				if type(items) == "table" then
 					for _, item in ipairs(items) do
-						table.insert(allOptions, {
+						table.insert(singleAllOptions, {
 							value = item,
 							category = categoryName
 						})
 					end
 				else
-					table.insert(allOptions, {
+					table.insert(singleAllOptions, {
 						value = items,
 						category = categoryName
 					})
 				end
 			end
 		else
-			-- It's a simple array table like {"banana", "mango", "apple"}
 			for _, item in ipairs(optionsTable) do
-				table.insert(allOptions, {
+				table.insert(singleAllOptions, {
 					value = item,
 					category = nil
 				})
@@ -1157,11 +1133,10 @@ function GuiLibrary:CreateDropdown(tab, dropdownName, optionsTable, defaultSelec
 		end
 	end
 	
-	-- Create category sections if we have categories
-	local categorySections = {}
-	if next(categories) then
-		for categoryName, items in pairs(categories) do
-			-- Category header
+	-- Create single category sections
+	local singleCategorySections = {}
+	if next(singleCategories) then
+		for categoryName, items in pairs(singleCategories) do
 			local categoryHeader = Instance.new("TextLabel")
 			categoryHeader.Name = categoryName
 			categoryHeader.Size = UDim2.new(1, 0, 0, 20)
@@ -1171,144 +1146,135 @@ function GuiLibrary:CreateDropdown(tab, dropdownName, optionsTable, defaultSelec
 			categoryHeader.TextSize = 12
 			categoryHeader.TextXAlignment = Enum.TextXAlignment.Left
 			categoryHeader.Font = Enum.Font.GothamBold
-			categoryHeader.LayoutOrder = #categorySections * 100
-			categoryHeader.Parent = optionsFrame
+			categoryHeader.LayoutOrder = #singleCategorySections * 100
+			categoryHeader.Parent = singleOptionsFrame
 			
-			-- Store category info
-			categorySections[categoryName] = {
+			singleCategorySections[categoryName] = {
 				Header = categoryHeader,
 				Items = {}
 			}
 		end
 	end
 	
-	-- Create option buttons
-	local optionButtons = {}
-	for i, optionData in ipairs(allOptions) do
+	-- Create single option buttons
+	local singleOptionButtons = {}
+	for i, optionData in ipairs(singleAllOptions) do
 		local optionValue = optionData.value
 		local categoryName = optionData.category
 		
-		local optionButton = Instance.new("TextButton")
-		optionButton.Name = optionValue
-		optionButton.Size = UDim2.new(1, 0, 0, 25)
-		optionButton.BackgroundColor3 = Theme.Secondary
-		optionButton.BorderSizePixel = 0
-		optionButton.Text = optionValue
-		optionButton.TextColor3 = Theme.TextSecondary
-		optionButton.TextSize = 12
-		optionButton.Font = Enum.Font.Gotham
+		local singleOptionButton = Instance.new("TextButton")
+		singleOptionButton.Name = optionValue
+		singleOptionButton.Size = UDim2.new(1, 0, 0, 25)
+		singleOptionButton.BackgroundColor3 = Theme.Secondary
+		singleOptionButton.BorderSizePixel = 0
+		singleOptionButton.Text = optionValue
+		singleOptionButton.TextColor3 = Theme.TextSecondary
+		singleOptionButton.TextSize = 12
+		singleOptionButton.Font = Enum.Font.Gotham
 		
-		-- Set layout order based on category
-		if categoryName and categorySections[categoryName] then
-			optionButton.LayoutOrder = categorySections[categoryName].Header.LayoutOrder + #categorySections[categoryName].Items + 1
+		if categoryName and singleCategorySections[categoryName] then
+			singleOptionButton.LayoutOrder = singleCategorySections[categoryName].Header.LayoutOrder + #singleCategorySections[categoryName].Items + 1
 		else
-			optionButton.LayoutOrder = i
+			singleOptionButton.LayoutOrder = i
 		end
 		
-		optionButton.Parent = optionsFrame
+		singleOptionButton.Parent = singleOptionsFrame
 		
-		local optionCorner = Instance.new("UICorner")
-		optionCorner.CornerRadius = UDim.new(0, 6)
-		optionCorner.Parent = optionButton
+		local singleOptionCorner = Instance.new("UICorner")
+		singleOptionCorner.CornerRadius = UDim.new(0, 6)
+		singleOptionCorner.Parent = singleOptionButton
 		
-		optionButton.MouseButton1Click:Connect(function()
-			selectedOption = optionValue
-			valueLabel.Text = optionValue
-			isOpen = false
-			optionsFrame.Visible = false
-			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+		singleOptionButton.MouseButton1Click:Connect(function()
+			singleSelectedOption = optionValue
+			singleValueLabel.Text = optionValue
+			singleIsOpen = false
+			singleOptionsFrame.Visible = false
+			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 			
 			if callback then
 				callback(optionValue)
 			end
 		end)
 		
-		optionButton.MouseEnter:Connect(function()
+		singleOptionButton.MouseEnter:Connect(function()
 			if not isMobile then
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
+				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
 			end
 		end)
 		
-		optionButton.MouseLeave:Connect(function()
+		singleOptionButton.MouseLeave:Connect(function()
 			if not isMobile then
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
-				TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.TextSecondary}):Play()
+				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {TextColor3 = Theme.TextSecondary}):Play()
 			end
 		end)
 		
-		-- Store in category if applicable
-		if categoryName and categorySections[categoryName] then
-			table.insert(categorySections[categoryName].Items, optionButton)
+		if categoryName and singleCategorySections[categoryName] then
+			table.insert(singleCategorySections[categoryName].Items, singleOptionButton)
 		end
 		
-		table.insert(optionButtons, optionButton)
+		table.insert(singleOptionButtons, singleOptionButton)
 	end
 	
-	-- Update scrolling frame size
-	optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		optionsFrame.CanvasSize = UDim2.new(0, 0, 0, optionsLayout.AbsoluteContentSize.Y + 10)
+	singleOptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		singleOptionsFrame.CanvasSize = UDim2.new(0, 0, 0, singleOptionsLayout.AbsoluteContentSize.Y + 10)
 	end)
 	
-	-- Toggle dropdown
-	dropdown.MouseButton1Click:Connect(function()
-		isOpen = not isOpen
+	singleDropdown.MouseButton1Click:Connect(function()
+		singleIsOpen = not singleIsOpen
 		
-		if isOpen then
-			optionsFrame.Visible = true
-			local height = math.min(optionsLayout.AbsoluteContentSize.Y + 10, 250) -- Max height 250
-			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
-			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
+		if singleIsOpen then
+			singleOptionsFrame.Visible = true
+			local height = math.min(singleOptionsLayout.AbsoluteContentSize.Y + 10, 250)
+			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
 		else
-			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 			wait(0.2)
-			optionsFrame.Visible = false
+			singleOptionsFrame.Visible = false
 		end
 	end)
 	
-	-- Close dropdown when clicking outside
-	local function closeDropdown(input)
-		if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
+	local function closeSingleDropdown(input)
+		if singleIsOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
 			local mousePos = input.Position
-			local dropdownAbsPos = dropdown.AbsolutePosition
-			local dropdownSize = dropdown.AbsoluteSize
-			local optionsAbsPos = optionsFrame.AbsolutePosition
-			local optionsSize = optionsFrame.AbsoluteSize
+			local dropdownAbsPos = singleDropdown.AbsolutePosition
+			local dropdownSize = singleDropdown.AbsoluteSize
+			local optionsAbsPos = singleOptionsFrame.AbsolutePosition
+			local optionsSize = singleOptionsFrame.AbsoluteSize
 			
 			if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
 				   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
-				isOpen = false
-				TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-				TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+				singleIsOpen = false
+				TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+				TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 				wait(0.2)
-				optionsFrame.Visible = false
+				singleOptionsFrame.Visible = false
 			end
 		end
 	end
 	
-	UserInputService.InputBegan:Connect(closeDropdown)
+	UserInputService.InputBegan:Connect(closeSingleDropdown)
 	
-	-- Function to get current selection
-	function dropdown:GetSelection()
-		return selectedOption
+	function singleDropdown:GetSelection()
+		return singleSelectedOption
 	end
 	
-	-- Function to set selection
-	function dropdown:SetSelection(selection)
+	function singleDropdown:SetSelection(selection)
 		if selection then
-			selectedOption = selection
-			valueLabel.Text = selection
+			singleSelectedOption = selection
+			singleValueLabel.Text = selection
 		else
-			selectedOption = nil
-			valueLabel.Text = "Select..."
+			singleSelectedOption = nil
+			singleValueLabel.Text = "Select..."
 		end
 	end
 	
-	return dropdown
+	return singleDropdown
 end
-
 
 
 
