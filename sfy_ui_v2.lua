@@ -1074,6 +1074,43 @@ function SpaceLabs:CreateDropdown(tab, text, options, multiSelect, defaultValue,
     return dropdownFrame
 end
 
+-- Add this function to your SpaceLabs library
+function SpaceLabs:CreateSeparator(tab, text)
+    local separatorFrame = Instance.new("Frame")
+    separatorFrame.Name = "Separator_" .. text
+    separatorFrame.Size = UDim2.new(1, -20, 0, isMobile and 30 or 25)
+    separatorFrame.BackgroundTransparency = 1
+    
+    -- Line
+    local line = Instance.new("Frame")
+    line.Name = "Line"
+    line.Size = UDim2.new(1, 0, 0, 1)
+    line.Position = UDim2.new(0, 0, 0.5, 0)
+    line.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+    line.BorderSizePixel = 0
+    line.Parent = separatorFrame
+    
+    -- Text label
+    if text and text ~= "" then
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Name = "Text"
+        textLabel.Size = UDim2.new(0, 100, 0, 20)
+        textLabel.Position = UDim2.new(0.5, -50, 0, 0)
+        textLabel.BackgroundColor3 = self.COLOR_PALETTE.BACKGROUND
+        textLabel.Text = text
+        textLabel.TextColor3 = self.COLOR_PALETTE.TEXT_SECONDARY
+        textLabel.TextSize = isMobile and 12 or 11
+        textLabel.Font = Enum.Font.GothamBold
+        textLabel.Parent = separatorFrame
+    end
+    
+    separatorFrame.Parent = tab.Page
+    table.insert(tab.Elements, separatorFrame)
+    
+    return separatorFrame
+end
+
+
 -- Show/Hide methods
 function SpaceLabs:Show()
     if self.IsMinimized then
