@@ -32,13 +32,13 @@ SpaceLabs.COLOR_PALETTE = {
     ERROR = Color3.fromRGB(255, 82, 82)
 }
 
--- Configuration with left tab layout
+-- Fixed Configuration
 SpaceLabs.Config = {
     DefaultSize = isMobile and UDim2.new(0, 350, 0, 500) or UDim2.new(0, 600, 0, 500),
-    TabWidth = isMobile and 80 : 100, -- Width for left side tabs
+    TabWidth = isMobile and 80 or 100, -- Fixed syntax
     IconSize = UDim2.new(0, 50, 0, 50),
     TitleBarHeight = isMobile and 40 or 35,
-    TabHeight = isMobile and 45 : 40 -- Height for individual tabs
+    TabHeight = isMobile and 45 or 40 -- Fixed syntax
 }
 
 -- Create new instance
@@ -562,7 +562,7 @@ function SpaceLabs:CreateTab(tabName, icon)
     return tab
 end
 
--- Select a tab
+-- Fixed SelectTab method
 function SpaceLabs:SelectTab(tab)
     if self.CurrentTab then
         self.CurrentTab.Button.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
@@ -580,8 +580,8 @@ function SpaceLabs:SelectTab(tab)
         tab.Page.CanvasPosition = Vector2.new(0, self.ContentScrollPositions[tab.Name])
     end
     
-    -- Save scroll position when tab changes
-    tabPage:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+    -- Fixed: Use tab.Page instead of undefined tabPage
+    tab.Page:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
         self.ContentScrollPositions[tab.Name] = tab.Page.CanvasPosition.Y
     end)
 end
