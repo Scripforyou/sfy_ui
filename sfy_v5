@@ -1743,8 +1743,9 @@ function GuiLibrary:CreateColorPicker(tab, pickerName, defaultColor, callback)
     
     return colorPickerObj
 end
--- multiple 
 
+
+-- multiple 
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
     -- Create unique name to avoid conflicts
     local uniqueName = "MultiDropdown_" .. dropdownName .. "_" .. tostring(tick()):gsub("%.", "")
@@ -1800,7 +1801,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     arrow.ZIndex = 11
     arrow.Parent = multiDropdown
     
-    -- Options Frame (with high z-index to appear above other elements)
+    -- Options Frame
     local optionsFrame = Instance.new("ScrollingFrame")
     optionsFrame.Name = "OptionsFrame"
     optionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -1829,20 +1830,6 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     optionsPadding.PaddingLeft = UDim.new(0, 8)
     optionsPadding.PaddingRight = UDim.new(0, 8)
     optionsPadding.Parent = optionsFrame
-    
-    -- Shadow for options frame
-    local optionsShadow = Instance.new("ImageLabel")
-    optionsShadow.Name = "OptionsShadow"
-    optionsShadow.Size = UDim2.new(1, 10, 1, 10)
-    optionsShadow.Position = UDim2.new(0, -5, 0, -5)
-    optionsShadow.BackgroundTransparency = 1
-    optionsShadow.Image = "rbxassetid://1316045217"
-    optionsShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    optionsShadow.ImageTransparency = 0.8
-    optionsShadow.ScaleType = Enum.ScaleType.Slice
-    optionsShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-    optionsShadow.ZIndex = 99
-    optionsShadow.Parent = optionsFrame
     
     local selectedOptions = {}
     local isOpen = false
@@ -1912,13 +1899,13 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         checkmark.Size = UDim2.new(0, 10, 0, 10)
         checkmark.Position = UDim2.new(0.5, -5, 0.5, -5)
         checkmark.BackgroundTransparency = 1
-        checkmark.Image = "rbxassetid://10709791453" -- Checkmark icon
+        checkmark.Image = "rbxassetid://10709791453"
         checkmark.ImageColor3 = Theme.Text
         checkmark.Visible = selectedOptions[option] or false
         checkmark.ZIndex = 103
         checkmark.Parent = checkbox
         
-        -- Option label
+        -- Option label - FIXED: Added proper text properties
         local optionLabel = Instance.new("TextLabel")
         optionLabel.Name = "Label"
         optionLabel.Size = UDim2.new(1, -35, 1, 0)
@@ -1982,42 +1969,11 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         end
     end)
     
-    -- Function to bring to front
-    local function bringToFront()
-        local highestZIndex = 0
-        
-        -- Find the highest z-index among all GUI elements
-        for _, element in pairs(screenGui:GetDescendants()) do
-            if element:IsA("GuiObject") and element.ZIndex > highestZIndex then
-                highestZIndex = element.ZIndex
-            end
-        end
-        
-        -- Set z-indexes to be above everything
-        multiDropdown.ZIndex = highestZIndex + 10
-        optionsFrame.ZIndex = highestZIndex + 11
-        optionsShadow.ZIndex = highestZIndex + 9
-        
-        -- Update all children z-indexes
-        for _, descendant in pairs(optionsFrame:GetDescendants()) do
-            if descendant:IsA("GuiObject") then
-                descendant.ZIndex = highestZIndex + 12
-            end
-        end
-        
-        for _, descendant in pairs(multiDropdown:GetDescendants()) do
-            if descendant:IsA("GuiObject") and descendant ~= optionsFrame and descendant ~= optionsShadow then
-                descendant.ZIndex = highestZIndex + 11
-            end
-        end
-    end
-    
     -- Toggle dropdown
     multiDropdown.MouseButton1Click:Connect(function()
         isOpen = not isOpen
         
         if isOpen then
-            bringToFront()
             optionsFrame.Visible = true
             local contentHeight = math.min(optionsLayout.AbsoluteContentSize.Y + 16, 200)
             TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
@@ -2039,7 +1995,6 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
             local optionsAbsPos = optionsFrame.AbsolutePosition
             local optionsSize = optionsFrame.AbsoluteSize
             
-            -- Check if click is outside the dropdown and options
             local isInsideDropdown = (mousePos.X >= multiDropdownAbsPos.X and mousePos.X <= multiDropdownAbsPos.X + multiDropdownSize.X and
                                     mousePos.Y >= multiDropdownAbsPos.Y and mousePos.Y <= multiDropdownAbsPos.Y + multiDropdownSize.Y)
             
@@ -2084,7 +2039,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         -- Update checkboxes
         for _, optionButton in pairs(optionsFrame:GetChildren()) do
             if optionButton:IsA("TextButton") and optionButton.Name:find("Option_") then
-                local option = optionButton.Name:sub(8) -- Remove "Option_" prefix
+                local option = optionButton.Name:sub(8)
                 local checkbox = optionButton:FindFirstChild("Checkbox")
                 local checkmark = checkbox and checkbox:FindFirstChild("Checkmark")
                 
@@ -2117,14 +2072,6 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     function multiDropdownObj:IsSelected(option)
         return selectedOptions[option] or false
-    end
-    
-    function multiDropdownObj:GetInstance()
-        return multiDropdown
-    end
-    
-    function multiDropdownObj:GetOptionsFrame()
-        return optionsFrame
     end
     
     return multiDropdownObj
