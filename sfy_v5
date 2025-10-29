@@ -1744,7 +1744,6 @@ function GuiLibrary:CreateColorPicker(tab, pickerName, defaultColor, callback)
     return colorPickerObj
 end
 -- multiple 
-
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
     local multiDropdown = Instance.new("TextButton")
     multiDropdown.Name = "MultiDropdown_" .. dropdownName
@@ -1839,19 +1838,20 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     multiOptionsPadding.Parent = multiScrollingFrame
     
     local multiIsOpen = false
-    local multiSelectedOptions = defaultSelections or {}
+    local multiSelectedOptions = {}
     local multiOptionStates = {}
     
-    -- Initialize multi option states
+    -- Initialize multi option states and set defaults
     for _, option in ipairs(options) do
         multiOptionStates[option] = false
     end
     
-    -- Set default multi selections
-    if defaultSelections then
+    -- Set default multi selections with validation
+    if defaultSelections and type(defaultSelections) == "table" then
         for _, option in ipairs(defaultSelections) do
             if multiOptionStates[option] ~= nil then
                 multiOptionStates[option] = true
+                table.insert(multiSelectedOptions, option)
             end
         end
     end
@@ -1885,6 +1885,28 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         for option, isSelected in pairs(multiOptionStates) do
             if isSelected then
                 table.insert(multiSelectedOptions, option)
+            end
+        end
+    end
+
+    -- Function to update all checkboxes based on current states
+    local function updateAllCheckboxes()
+        for _, multiOptionButton in ipairs(multiOptionButtons) do
+            local option = multiOptionButton.Name
+            local checkbox = multiOptionButton:FindFirstChild("Checkbox")
+            local checkmark = checkbox and checkbox:FindFirstChild("Checkmark")
+            local optionText = multiOptionButton:FindFirstChild("Text")
+            
+            if checkbox and checkmark and optionText then
+                if multiOptionStates[option] then
+                    checkbox.BackgroundColor3 = Theme.Accent
+                    checkmark.Visible = true
+                    optionText.TextColor3 = Theme.Text
+                else
+                    checkbox.BackgroundColor3 = Theme.Secondary
+                    checkmark.Visible = false
+                    optionText.TextColor3 = Theme.TextSecondary
+                end
             end
         end
     end
@@ -1977,8 +1999,22 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiOptionText.ZIndex = 103
         multiOptionText.Parent = multiOptionButton
         
-        -- Update multi checkbox appearance
-        local function updateMultiCheckbox()
+        -- Set initial checkbox state based on default selections
+        if multiOptionStates[option] then
+            multiCheckbox.BackgroundColor3 = Theme.Accent
+            multiCheckmark.Visible = true
+            multiOptionText.TextColor3 = Theme.Text
+        else
+            multiCheckbox.BackgroundColor3 = Theme.Secondary
+            multiCheckmark.Visible = false
+            multiOptionText.TextColor3 = Theme.TextSecondary
+        end
+        
+        -- Toggle multi selection
+        multiOptionButton.MouseButton1Click:Connect(function()
+            multiOptionStates[option] = not multiOptionStates[option]
+            
+            -- Update checkbox appearance
             if multiOptionStates[option] then
                 multiCheckbox.BackgroundColor3 = Theme.Accent
                 multiCheckmark.Visible = true
@@ -1988,14 +2024,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
                 multiCheckmark.Visible = false
                 multiOptionText.TextColor3 = Theme.TextSecondary
             end
-        end
-        
-        updateMultiCheckbox()
-        
-        -- Toggle multi selection
-        multiOptionButton.MouseButton1Click:Connect(function()
-            multiOptionStates[option] = not multiOptionStates[option]
-            updateMultiCheckbox()
+            
             updateMultiDisplayText()
             
             if callback then
@@ -2082,11 +2111,13 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     end
     
     function multiDropdownObj:SetSelections(selections)
+        -- Reset all states
         for option, _ in pairs(multiOptionStates) do
             multiOptionStates[option] = false
         end
         
-        if selections then
+        -- Set new selections
+        if selections and type(selections) == "table" then
             for _, option in ipairs(selections) do
                 if multiOptionStates[option] ~= nil then
                     multiOptionStates[option] = true
@@ -2095,30 +2126,52 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         end
         
         updateMultiDisplayText()
+        updateAllCheckboxes()
         
-        -- Update multi checkboxes
-        for _, multiOptionButton in ipairs(multiOptionButtons) do
-            local option = multiOptionButton.Name
-            local checkbox = multiOptionButton:FindFirstChild("Checkbox")
-            local checkmark = checkbox and checkbox:FindFirstChild("Checkmark")
-            local optionText = multiOptionButton:FindFirstChild("Text")
-            
-            if checkbox and checkmark and optionText then
-                if multiOptionStates[option] then
-                    checkbox.BackgroundColor3 = Theme.Accent
-                    checkmark.Visible = true
-                    optionText.TextColor3 = Theme.Text
-                else
-                    checkbox.BackgroundColor3 = Theme.Secondary
-                    checkmark.Visible = false
-                    optionText.TextColor3 = Theme.TextSecondary
-                end
-            end
+        -- Trigger callback if provided
+        if callback then
+            callback(multiSelectedOptions, nil, nil)
         end
     end
     
     function multiDropdownObj:ClearSelections()
         multiDropdownObj:SetSelections({})
+    end
+    
+    function multiDropdownObj:AddSelection(option)
+        if multiOptionStates[option] ~= nil then
+            multiOptionStates[option] = true
+            updateMultiDisplayText()
+            updateAllCheckboxes()
+            
+            if callback then
+                callback(multiSelectedOptions, option, true)
+            end
+        end
+    end
+    
+    function multiDropdownObj:RemoveSelection(option)
+        if multiOptionStates[option] ~= nil then
+            multiOptionStates[option] = false
+            updateMultiDisplayText()
+            updateAllCheckboxes()
+            
+            if callback then
+                callback(multiSelectedOptions, option, false)
+            end
+        end
+    end
+    
+    function multiDropdownObj:ToggleSelection(option)
+        if multiOptionStates[option] ~= nil then
+            multiOptionStates[option] = not multiOptionStates[option]
+            updateMultiDisplayText()
+            updateAllCheckboxes()
+            
+            if callback then
+                callback(multiSelectedOptions, option, multiOptionStates[option])
+            end
+        end
     end
     
     function multiDropdownObj:GetInstance()
@@ -2136,6 +2189,8 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     return multiDropdownObj
 end
+
+
 
 
 -- Export the library
