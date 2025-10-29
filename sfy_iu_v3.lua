@@ -32,12 +32,13 @@ SpaceLabs.COLOR_PALETTE = {
     ERROR = Color3.fromRGB(255, 82, 82)
 }
 
+-- Configuration with left tab layout
 SpaceLabs.Config = {
     DefaultSize = isMobile and UDim2.new(0, 350, 0, 500) or UDim2.new(0, 600, 0, 500),
-    TabWidth = isMobile and 80 or 100,  -- ✅ Use 'or' not ':'
+    TabWidth = isMobile and 80 or 100,
     IconSize = UDim2.new(0, 50, 0, 50),
     TitleBarHeight = isMobile and 40 or 35,
-    TabHeight = isMobile and 45 or 40  -- ✅ Use 'or' not ':'
+    TabHeight = isMobile and 45 or 40
 }
 
 -- Create new instance
@@ -579,10 +580,20 @@ function SpaceLabs:SelectTab(tab)
         tab.Page.CanvasPosition = Vector2.new(0, self.ContentScrollPositions[tab.Name])
     end
     
-    -- Fixed: Use tab.Page instead of undefined tabPage
-    tab.Page:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+    -- Fixed: Properly connect to scroll position changes
+    local connection
+    connection = tab.Page:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
         self.ContentScrollPositions[tab.Name] = tab.Page.CanvasPosition.Y
     end)
+    
+    -- Store connection to disconnect later if needed
+    if not self.ScrollConnections then
+        self.ScrollConnections = {}
+    end
+    if self.ScrollConnections[tab.Name] then
+        self.ScrollConnections[tab.Name]:Disconnect()
+    end
+    self.ScrollConnections[tab.Name] = connection
 end
 
 -- Enhanced UI Element Factory Methods with all original features
@@ -679,7 +690,7 @@ function SpaceLabs:CreateToggle(tab, text, defaultValue, callback)
     toggleKnob.Parent = toggleButton
     toggleButton.Parent = toggleFrame
     
-    local isToggled = defaultValue
+    local isToggled = defaultValue or false
     
     local function toggleState()
         isToggled = not isToggled
@@ -770,7 +781,7 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     knob.Parent = sliderFrame
     
     local isDragging = false
-    local currentValue = defaultValue
+    local currentValue = defaultValue or minValue
     
     local function updateSlider(value)
         local normalized = math.clamp((value - minValue) / (maxValue - minValue), 0, 1)
@@ -1020,7 +1031,9 @@ function SpaceLabs:CreateDropdown(tab, text, options, multiSelect, defaultValue,
             if multiSelect then
                 selectedOptions[optionName] = not selectedOptions[optionName]
                 local checkMark = optionButton:FindFirstChild("CheckBox"):FindFirstChild("CheckMark")
-                checkMark.Visible = selectedOptions[optionName]
+                if checkMark then
+                    checkMark.Visible = selectedOptions[optionName]
+                end
                 
                 if selectedOptions[optionName] then
                     optionButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
@@ -1036,7 +1049,10 @@ function SpaceLabs:CreateDropdown(tab, text, options, multiSelect, defaultValue,
                         otherOption.BackgroundColor3 = self.COLOR_PALETTE.SURFACE
                         local radioDot = otherOption:FindFirstChild("RadioDot")
                         if radioDot then
-                            radioDot.InnerDot.Visible = false
+                            local innerDot = radioDot:FindFirstChild("InnerDot")
+                            if innerDot then
+                                innerDot.Visible = false
+                            end
                         end
                     end
                 end
@@ -1044,7 +1060,10 @@ function SpaceLabs:CreateDropdown(tab, text, options, multiSelect, defaultValue,
                 optionButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
                 local radioDot = optionButton:FindFirstChild("RadioDot")
                 if radioDot then
-                    radioDot.InnerDot.Visible = true
+                    local innerDot = radioDot:FindFirstChild("InnerDot")
+                    if innerDot then
+                        innerDot.Visible = true
+                    end
                 end
                 
                 -- Close dropdown after selection for single select
