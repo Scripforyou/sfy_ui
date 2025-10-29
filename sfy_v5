@@ -1744,6 +1744,7 @@ function GuiLibrary:CreateColorPicker(tab, pickerName, defaultColor, callback)
     return colorPickerObj
 end
 -- multiple 
+
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
     -- Create unique name to avoid conflicts
     local uniqueName = "MultiDropdown_" .. dropdownName .. "_" .. tostring(tick()):gsub("%.", "")
@@ -1783,7 +1784,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     valueLabel.TextColor3 = Theme.TextSecondary
     valueLabel.TextSize = 12
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-    label.Font = Enum.Font.Gotham
+    valueLabel.Font = Enum.Font.Gotham
     valueLabel.ZIndex = 11
     valueLabel.Parent = multiDropdown
     
@@ -2128,6 +2129,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     return multiDropdownObj
 end
+
 
 -- Export the library
 return GuiLibrary
