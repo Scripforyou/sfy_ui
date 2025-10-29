@@ -32,13 +32,12 @@ SpaceLabs.COLOR_PALETTE = {
     ERROR = Color3.fromRGB(255, 82, 82)
 }
 
--- Fixed Configuration
 SpaceLabs.Config = {
     DefaultSize = isMobile and UDim2.new(0, 350, 0, 500) or UDim2.new(0, 600, 0, 500),
-    TabWidth = isMobile and 80 or 100, -- Fixed syntax
+    TabWidth = isMobile and 80 or 100,  -- ✅ Use 'or' not ':'
     IconSize = UDim2.new(0, 50, 0, 50),
     TitleBarHeight = isMobile and 40 or 35,
-    TabHeight = isMobile and 45 or 40 -- Fixed syntax
+    TabHeight = isMobile and 45 or 40  -- ✅ Use 'or' not ':'
 }
 
 -- Create new instance
