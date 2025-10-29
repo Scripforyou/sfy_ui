@@ -1798,35 +1798,45 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     multiArrow.ZIndex = 6
     multiArrow.Parent = multiDropdown
     
-    -- Multi Options Frame
-    local multiOptionsFrame = Instance.new("ScrollingFrame")
-    multiOptionsFrame.Name = "Options"
-    multiOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
-    multiOptionsFrame.Position = UDim2.new(0, 0, 1, 5)
+    -- Create a separate frame for the dropdown options that's parented to the screen GUI
+    -- This ensures it appears above all other elements
+    local multiOptionsFrame = Instance.new("Frame")
+    multiOptionsFrame.Name = "MultiDropdownOptions_" .. dropdownName
+    multiOptionsFrame.Size = UDim2.new(0, 0, 0, 0)
     multiOptionsFrame.BackgroundColor3 = Theme.Secondary
     multiOptionsFrame.BorderSizePixel = 0
-    multiOptionsFrame.ScrollBarThickness = 4
-    multiOptionsFrame.ScrollBarImageColor3 = Theme.Accent
     multiOptionsFrame.Visible = false
     multiOptionsFrame.ClipsDescendants = true
-    multiOptionsFrame.ZIndex = 20
-    multiOptionsFrame.Parent = multiDropdown
+    multiOptionsFrame.ZIndex = 100  -- Very high z-index to ensure it's on top
+    multiOptionsFrame.Parent = self.ScreenGui  -- Parent to main ScreenGui instead of the dropdown
     
     local multiOptionsCorner = Instance.new("UICorner")
     multiOptionsCorner.CornerRadius = UDim.new(0, 8)
     multiOptionsCorner.Parent = multiOptionsFrame
     
+    -- Scrolling frame inside the options frame
+    local multiScrollingFrame = Instance.new("ScrollingFrame")
+    multiScrollingFrame.Name = "ScrollingFrame"
+    multiScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+    multiScrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+    multiScrollingFrame.BackgroundTransparency = 1
+    multiScrollingFrame.BorderSizePixel = 0
+    multiScrollingFrame.ScrollBarThickness = 4
+    multiScrollingFrame.ScrollBarImageColor3 = Theme.Accent
+    multiScrollingFrame.ZIndex = 101
+    multiScrollingFrame.Parent = multiOptionsFrame
+    
     local multiOptionsLayout = Instance.new("UIListLayout")
     multiOptionsLayout.Padding = UDim.new(0, 2)
     multiOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    multiOptionsLayout.Parent = multiOptionsFrame
+    multiOptionsLayout.Parent = multiScrollingFrame
     
     local multiOptionsPadding = Instance.new("UIPadding")
     multiOptionsPadding.PaddingTop = UDim.new(0, 5)
     multiOptionsPadding.PaddingBottom = UDim.new(0, 5)
     multiOptionsPadding.PaddingLeft = UDim.new(0, 5)
     multiOptionsPadding.PaddingRight = UDim.new(0, 5)
-    multiOptionsPadding.Parent = multiOptionsFrame
+    multiOptionsPadding.Parent = multiScrollingFrame
     
     local multiIsOpen = false
     local multiSelectedOptions = defaultSelections or {}
@@ -1881,6 +1891,38 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     updateMultiDisplayText()
     
+    -- Function to calculate and set dropdown position
+    local function updateDropdownPosition()
+        if not multiIsOpen then return end
+        
+        local dropdownAbsPos = multiDropdown.AbsolutePosition
+        local dropdownSize = multiDropdown.AbsoluteSize
+        local screenSize = self.ScreenGui.AbsoluteSize
+        
+        -- Calculate available space below and above the dropdown
+        local spaceBelow = screenSize.Y - (dropdownAbsPos.Y + dropdownSize.Y)
+        local spaceAbove = dropdownAbsPos.Y
+        
+        local maxHeight = math.min(#options * 27 + 10, 200)
+        local finalHeight = math.min(maxHeight, math.max(spaceBelow, spaceAbove) - 20)
+        
+        -- Position dropdown below if there's enough space, otherwise above
+        if spaceBelow >= finalHeight or spaceBelow >= spaceAbove then
+            -- Position below
+            multiOptionsFrame.Position = UDim2.new(0, dropdownAbsPos.X, 0, dropdownAbsPos.Y + dropdownSize.Y + 2)
+        else
+            -- Position above
+            multiOptionsFrame.Position = UDim2.new(0, dropdownAbsPos.X, 0, dropdownAbsPos.Y - finalHeight - 2)
+        end
+        
+        -- Set width to match dropdown and ensure it doesn't go off-screen
+        local dropdownWidth = dropdownSize.X
+        local maxWidth = screenSize.X - dropdownAbsPos.X - 10
+        local finalWidth = math.min(dropdownWidth, maxWidth)
+        
+        multiOptionsFrame.Size = UDim2.new(0, finalWidth, 0, finalHeight)
+    end
+    
     -- Create multi option buttons with checkboxes
     local multiOptionButtons = {}
     for i, option in ipairs(options) do
@@ -1891,8 +1933,8 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiOptionButton.BorderSizePixel = 0
         multiOptionButton.Text = ""
         multiOptionButton.LayoutOrder = i
-        multiOptionButton.ZIndex = 21
-        multiOptionButton.Parent = multiOptionsFrame
+        multiOptionButton.ZIndex = 102
+        multiOptionButton.Parent = multiScrollingFrame
         
         local multiOptionCorner = Instance.new("UICorner")
         multiOptionCorner.CornerRadius = UDim.new(0, 6)
@@ -1904,7 +1946,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiCheckbox.Position = UDim2.new(0, 8, 0.5, -8)
         multiCheckbox.BackgroundColor3 = Theme.Secondary
         multiCheckbox.BorderSizePixel = 0
-        multiCheckbox.ZIndex = 22
+        multiCheckbox.ZIndex = 103
         multiCheckbox.Parent = multiOptionButton
         
         local multiCheckboxCorner = Instance.new("UICorner")
@@ -1919,7 +1961,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiCheckmark.Image = "rbxassetid://10734996880"
         multiCheckmark.ImageColor3 = Theme.Text
         multiCheckmark.Visible = false
-        multiCheckmark.ZIndex = 23
+        multiCheckmark.ZIndex = 104
         multiCheckmark.Parent = multiCheckbox
         
         local multiOptionText = Instance.new("TextLabel")
@@ -1932,7 +1974,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiOptionText.TextSize = 12
         multiOptionText.TextXAlignment = Enum.TextXAlignment.Left
         multiOptionText.Font = Enum.Font.Gotham
-        multiOptionText.ZIndex = 22
+        multiOptionText.ZIndex = 103
         multiOptionText.Parent = multiOptionButton
         
         -- Update multi checkbox appearance
@@ -1979,7 +2021,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     -- Update multi scrolling frame size
     multiOptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        multiOptionsFrame.CanvasSize = UDim2.new(0, 0, 0, multiOptionsLayout.AbsoluteContentSize.Y + 10)
+        multiScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, multiOptionsLayout.AbsoluteContentSize.Y + 10)
     end)
     
     -- Toggle multi dropdown
@@ -1987,15 +2029,21 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         multiIsOpen = not multiIsOpen
         
         if multiIsOpen then
+            updateDropdownPosition()
             multiOptionsFrame.Visible = true
-            local height = math.min(#options * 27 + 10, 200)
             TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
-            TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
         else
             TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-            TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)}):Play()
             wait(0.2)
             multiOptionsFrame.Visible = false
+        end
+    end)
+    
+    -- Update position when screen size changes
+    self.ScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        if multiIsOpen then
+            updateDropdownPosition()
         end
     end)
     
@@ -2008,11 +2056,16 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
             local optionsAbsPos = multiOptionsFrame.AbsolutePosition
             local optionsSize = multiOptionsFrame.AbsoluteSize
             
-            if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
-                   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
+            local isOverDropdown = (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
+                   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y)
+            
+            local isOverOptions = (mousePos.X >= optionsAbsPos.X and mousePos.X <= optionsAbsPos.X + optionsSize.X and
+                   mousePos.Y >= optionsAbsPos.Y and mousePos.Y <= optionsAbsPos.Y + optionsSize.Y)
+            
+            if not isOverDropdown and not isOverOptions then
                 multiIsOpen = false
                 TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-                TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)}):Play()
                 wait(0.2)
                 multiOptionsFrame.Visible = false
             end
@@ -2072,8 +2125,18 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         return multiDropdown
     end
     
+    function multiDropdownObj:Destroy()
+        if multiOptionsFrame then
+            multiOptionsFrame:Destroy()
+        end
+        if multiDropdown then
+            multiDropdown:Destroy()
+        end
+    end
+    
     return multiDropdownObj
 end
+
 
 -- Export the library
 return GuiLibrary
