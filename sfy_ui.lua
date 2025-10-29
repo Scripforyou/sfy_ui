@@ -60,7 +60,7 @@ function SpaceLabs:Init()
     self:SetupConnections()
     self.Enabled = true
     
-    print("🚀 Space Labs Menu initialized!")
+    print("SFY_Ultimate_Menu")
     print("📱 Mobile Optimized:", isMobile)
     print("🖥️  Desktop Optimized:", isDesktop)
     
