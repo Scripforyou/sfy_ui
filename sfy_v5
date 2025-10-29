@@ -1745,445 +1745,335 @@ function GuiLibrary:CreateColorPicker(tab, pickerName, defaultColor, callback)
 end
 -- multiple 
 
-function GuiLibrary:CreateColorPicker(tab, pickerName, defaultColor, callback)
-    local defaultColor = defaultColor or Color3.fromRGB(255, 255, 255)
+function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
+    local multiDropdown = Instance.new("TextButton")
+    multiDropdown.Name = "MultiDropdown_" .. dropdownName
+    multiDropdown.Size = UDim2.new(1, 0, 0, 35)
+    multiDropdown.BackgroundColor3 = Theme.Secondary
+    multiDropdown.BorderSizePixel = 0
+    multiDropdown.Text = ""
+    multiDropdown.ZIndex = 5
+    multiDropdown.Parent = tab.Frame
     
-    local colorPicker = Instance.new("TextButton")
-    colorPicker.Name = "ColorPicker_" .. pickerName
-    colorPicker.Size = UDim2.new(1, 0, 0, 35)
-    colorPicker.BackgroundColor3 = Theme.Secondary
-    colorPicker.BorderSizePixel = 0
-    colorPicker.Text = ""
-    colorPicker.Parent = tab.Frame
+    local multiCorner = Instance.new("UICorner")
+    multiCorner.CornerRadius = UDim.new(0, 8)
+    multiCorner.Parent = multiDropdown
     
-    local colorPickerCorner = Instance.new("UICorner")
-    colorPickerCorner.CornerRadius = UDim.new(0, 8)
-    colorPickerCorner.Parent = colorPicker
+    local multiLabel = Instance.new("TextLabel")
+    multiLabel.Name = "Label"
+    multiLabel.Size = UDim2.new(0.4, 0, 1, 0)
+    multiLabel.Position = UDim2.new(0, 15, 0, 0)
+    multiLabel.BackgroundTransparency = 1
+    multiLabel.Text = dropdownName
+    multiLabel.TextColor3 = Theme.Text
+    multiLabel.TextSize = 14
+    multiLabel.TextXAlignment = Enum.TextXAlignment.Left
+    multiLabel.Font = Enum.Font.Gotham
+    multiLabel.ZIndex = 6
+    multiLabel.Parent = multiDropdown
     
-    local label = Instance.new("TextLabel")
-    label.Name = "Label"
-    label.Size = UDim2.new(0.7, 0, 1, 0)
-    label.Position = UDim2.new(0, 15, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = pickerName
-    label.TextColor3 = Theme.Text
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Font = Enum.Font.Gotham
-    label.Parent = colorPicker
+    local multiValueLabel = Instance.new("TextLabel")
+    multiValueLabel.Name = "Value"
+    multiValueLabel.Size = UDim2.new(0.45, 0, 1, 0)
+    multiValueLabel.Position = UDim2.new(0.4, 0, 0, 0)
+    multiValueLabel.BackgroundTransparency = 1
+    multiValueLabel.Text = "Select..."
+    multiValueLabel.TextColor3 = Theme.TextSecondary
+    multiValueLabel.TextSize = 11
+    multiValueLabel.TextXAlignment = Enum.TextXAlignment.Left
+    multiValueLabel.TextWrapped = true
+    multiValueLabel.Font = Enum.Font.Gotham
+    multiValueLabel.ZIndex = 6
+    multiValueLabel.Parent = multiDropdown
     
-    local colorPreview = Instance.new("Frame")
-    colorPreview.Name = "ColorPreview"
-    colorPreview.Size = UDim2.new(0, 25, 0, 25)
-    colorPreview.Position = UDim2.new(1, -35, 0.5, -12.5)
-    colorPreview.BackgroundColor3 = defaultColor
-    colorPreview.BorderSizePixel = 0
-    colorPreview.Parent = colorPicker
+    local multiArrow = Instance.new("TextLabel")
+    multiArrow.Name = "Arrow"
+    multiArrow.Size = UDim2.new(0, 20, 0, 20)
+    multiArrow.Position = UDim2.new(1, -25, 0.5, -10)
+    multiArrow.BackgroundTransparency = 1
+    multiArrow.Text = "▼"
+    multiArrow.TextColor3 = Theme.TextSecondary
+    multiArrow.TextSize = 12
+    multiArrow.Font = Enum.Font.Gotham
+    multiArrow.ZIndex = 6
+    multiArrow.Parent = multiDropdown
     
-    local colorPreviewCorner = Instance.new("UICorner")
-    colorPreviewCorner.CornerRadius = UDim.new(0, 6)
-    colorPreviewCorner.Parent = colorPreview
+    -- Multi Options Frame
+    local multiOptionsFrame = Instance.new("ScrollingFrame")
+    multiOptionsFrame.Name = "Options"
+    multiOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
+    multiOptionsFrame.Position = UDim2.new(0, 0, 1, 5)
+    multiOptionsFrame.BackgroundColor3 = Theme.Secondary
+    multiOptionsFrame.BorderSizePixel = 0
+    multiOptionsFrame.ScrollBarThickness = 4
+    multiOptionsFrame.ScrollBarImageColor3 = Theme.Accent
+    multiOptionsFrame.Visible = false
+    multiOptionsFrame.ClipsDescendants = true
+    multiOptionsFrame.ZIndex = 20
+    multiOptionsFrame.Parent = multiDropdown
     
-    -- Color Picker Window
-    local colorWindow = Instance.new("Frame")
-    colorWindow.Name = "ColorWindow"
-    colorWindow.Size = UDim2.new(0, 250, 0, 200)
-    colorWindow.Position = UDim2.new(1, 10, 0, 0)
-    colorWindow.BackgroundColor3 = Theme.Background
-    colorWindow.BorderSizePixel = 0
-    colorWindow.Visible = false
-    colorWindow.ZIndex = 50
-    colorWindow.Parent = colorPicker
+    local multiOptionsCorner = Instance.new("UICorner")
+    multiOptionsCorner.CornerRadius = UDim.new(0, 8)
+    multiOptionsCorner.Parent = multiOptionsFrame
     
-    local colorWindowCorner = Instance.new("UICorner")
-    colorWindowCorner.CornerRadius = UDim.new(0, 8)
-    colorWindowCorner.Parent = colorWindow
+    local multiOptionsLayout = Instance.new("UIListLayout")
+    multiOptionsLayout.Padding = UDim.new(0, 2)
+    multiOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    multiOptionsLayout.Parent = multiOptionsFrame
     
-    local colorWindowShadow = Instance.new("ImageLabel")
-    colorWindowShadow.Name = "Shadow"
-    colorWindowShadow.Size = UDim2.new(1, 10, 1, 10)
-    colorWindowShadow.Position = UDim2.new(0, -5, 0, -5)
-    colorWindowShadow.BackgroundTransparency = 1
-    colorWindowShadow.Image = "rbxassetid://1316045217"
-    colorWindowShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    colorWindowShadow.ImageTransparency = 0.8
-    colorWindowShadow.ScaleType = Enum.ScaleType.Slice
-    colorWindowShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-    colorWindowShadow.ZIndex = 49
-    colorWindowShadow.Parent = colorWindow
+    local multiOptionsPadding = Instance.new("UIPadding")
+    multiOptionsPadding.PaddingTop = UDim.new(0, 5)
+    multiOptionsPadding.PaddingBottom = UDim.new(0, 5)
+    multiOptionsPadding.PaddingLeft = UDim.new(0, 5)
+    multiOptionsPadding.PaddingRight = UDim.new(0, 5)
+    multiOptionsPadding.Parent = multiOptionsFrame
     
-    local title = Instance.new("TextLabel")
-    title.Name = "Title"
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.BackgroundColor3 = Theme.Secondary
-    title.BorderSizePixel = 0
-    title.Text = pickerName
-    title.TextColor3 = Theme.Text
-    title.TextSize = 14
-    title.Font = Enum.Font.Gotham
-    title.ZIndex = 51
-    title.Parent = colorWindow
+    local multiIsOpen = false
+    local multiSelectedOptions = defaultSelections or {}
+    local multiOptionStates = {}
     
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 8)
-    titleCorner.Parent = title
-    
-    -- Color Wheel
-    local colorWheel = Instance.new("ImageLabel")
-    colorWheel.Name = "ColorWheel"
-    colorWheel.Size = UDim2.new(0, 120, 0, 120)
-    colorWheel.Position = UDim2.new(0, 15, 0, 40)
-    colorWheel.BackgroundTransparency = 1
-    colorWheel.Image = "rbxassetid://13777638835" -- Color wheel image
-    colorWheel.ZIndex = 51
-    colorWheel.Parent = colorWindow
-    
-    local colorWheelCursor = Instance.new("Frame")
-    colorWheelCursor.Name = "Cursor"
-    colorWheelCursor.Size = UDim2.new(0, 8, 0, 8)
-    colorWheelCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    colorWheelCursor.BorderSizePixel = 1
-    colorWheelCursor.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    colorWheelCursor.ZIndex = 52
-    colorWheelCursor.Visible = false
-    colorWheelCursor.Parent = colorWheel
-    
-    local cursorCorner = Instance.new("UICorner")
-    cursorCorner.CornerRadius = UDim.new(1, 0)
-    cursorCorner.Parent = colorWheelCursor
-    
-    -- Brightness Slider
-    local brightnessSlider = Instance.new("Frame")
-    brightnessSlider.Name = "BrightnessSlider"
-    brightnessSlider.Size = UDim2.new(0, 20, 0, 120)
-    brightnessSlider.Position = UDim2.new(0, 150, 0, 40)
-    brightnessSlider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    brightnessSlider.BorderSizePixel = 0
-    brightnessSlider.ZIndex = 51
-    brightnessSlider.Parent = colorWindow
-    
-    local brightnessGradient = Instance.new("UIGradient")
-    brightnessGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-    })
-    brightnessGradient.Rotation = 90
-    brightnessGradient.Parent = brightnessSlider
-    
-    local brightnessCorner = Instance.new("UICorner")
-    brightnessCorner.CornerRadius = UDim.new(0, 4)
-    brightnessCorner.Parent = brightnessSlider
-    
-    local brightnessCursor = Instance.new("Frame")
-    brightnessCursor.Name = "Cursor"
-    brightnessCursor.Size = UDim2.new(1, 4, 0, 6)
-    brightnessCursor.Position = UDim2.new(0, -2, 0.5, -3)
-    brightnessCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    brightnessCursor.BorderSizePixel = 1
-    brightnessCursor.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    brightnessCursor.ZIndex = 52
-    brightnessCursor.Parent = brightnessSlider
-    
-    local brightnessCursorCorner = Instance.new("UICorner")
-    brightnessCursorCorner.CornerRadius = UDim.new(0, 2)
-    brightnessCursorCorner.Parent = brightnessCursor
-    
-    -- Current Color Display
-    local currentColorDisplay = Instance.new("Frame")
-    currentColorDisplay.Name = "CurrentColor"
-    currentColorDisplay.Size = UDim2.new(0, 60, 0, 25)
-    currentColorDisplay.Position = UDim2.new(0, 15, 0, 170)
-    currentColorDisplay.BackgroundColor3 = defaultColor
-    currentColorDisplay.BorderSizePixel = 0
-    currentColorDisplay.ZIndex = 51
-    currentColorDisplay.Parent = colorWindow
-    
-    local currentColorCorner = Instance.new("UICorner")
-    currentColorCorner.CornerRadius = UDim.new(0, 6)
-    currentColorCorner.Parent = currentColorDisplay
-    
-    -- RGB Inputs
-    local rgbInputs = Instance.new("Frame")
-    rgbInputs.Name = "RGBInputs"
-    rgbInputs.Size = UDim2.new(0, 140, 0, 80)
-    rgbInputs.Position = UDim2.new(0, 85, 0, 165)
-    rgbInputs.BackgroundTransparency = 1
-    rgbInputs.ZIndex = 51
-    rgbInputs.Parent = colorWindow
-    
-    local function createRGBInput(yPosition, labelText, defaultValue)
-        local inputFrame = Instance.new("Frame")
-        inputFrame.Size = UDim2.new(1, 0, 0, 20)
-        inputFrame.Position = UDim2.new(0, 0, 0, yPosition)
-        inputFrame.BackgroundTransparency = 1
-        inputFrame.ZIndex = 51
-        inputFrame.Parent = rgbInputs
-        
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(0, 30, 1, 0)
-        label.BackgroundTransparency = 1
-        label.Text = labelText
-        label.TextColor3 = Theme.Text
-        label.TextSize = 12
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Font = Enum.Font.Gotham
-        label.ZIndex = 51
-        label.Parent = inputFrame
-        
-        local textBox = Instance.new("TextBox")
-        textBox.Size = UDim2.new(0, 40, 1, 0)
-        textBox.Position = UDim2.new(0, 35, 0, 0)
-        textBox.BackgroundColor3 = Theme.Secondary
-        textBox.BorderSizePixel = 0
-        textBox.Text = tostring(defaultValue)
-        textBox.TextColor3 = Theme.Text
-        textBox.TextSize = 12
-        textBox.Font = Enum.Font.Gotham
-        textBox.ZIndex = 51
-        textBox.Parent = inputFrame
-        
-        local textBoxCorner = Instance.new("UICorner")
-        textBoxCorner.CornerRadius = UDim.new(0, 4)
-        textBoxCorner.Parent = textBox
-        
-        return textBox
+    -- Initialize multi option states
+    for _, option in ipairs(options) do
+        multiOptionStates[option] = false
     end
     
-    local rInput = createRGBInput(0, "R:", math.floor(defaultColor.R * 255))
-    local gInput = createRGBInput(25, "G:", math.floor(defaultColor.G * 255))
-    local bInput = createRGBInput(50, "B:", math.floor(defaultColor.B * 255))
-    
-    -- Close Button
-    local closeButton = Instance.new("TextButton")
-    closeButton.Name = "CloseButton"
-    closeButton.Size = UDim2.new(0, 60, 0, 25)
-    closeButton.Position = UDim2.new(1, -70, 0, 170)
-    closeButton.BackgroundColor3 = Theme.Accent
-    closeButton.BorderSizePixel = 0
-    closeButton.Text = "OK"
-    closeButton.TextColor3 = Theme.Text
-    closeButton.TextSize = 12
-    closeButton.Font = Enum.Font.Gotham
-    closeButton.ZIndex = 51
-    closeButton.Parent = colorWindow
-    
-    local closeButtonCorner = Instance.new("UICorner")
-    closeButtonCorner.CornerRadius = UDim.new(0, 6)
-    closeButtonCorner.Parent = closeButton
-    
-    local isOpen = false
-    local currentColor = defaultColor
-    local isDraggingWheel = false
-    local isDraggingBrightness = false
-    
-    -- Color conversion functions
-    local function HSVtoRGB(h, s, v)
-        local r, g, b
-        
-        local i = math.floor(h * 6)
-        local f = h * 6 - i
-        local p = v * (1 - s)
-        local q = v * (1 - f * s)
-        local t = v * (1 - (1 - f) * s)
-        
-        i = i % 6
-        
-        if i == 0 then
-            r, g, b = v, t, p
-        elseif i == 1 then
-            r, g, b = q, v, p
-        elseif i == 2 then
-            r, g, b = p, v, t
-        elseif i == 3 then
-            r, g, b = p, q, v
-        elseif i == 4 then
-            r, g, b = t, p, v
-        else
-            r, g, b = v, p, q
-        end
-        
-        return Color3.new(r, g, b)
-    end
-    
-    local function RGBtoHSV(r, g, b)
-        local max = math.max(r, g, b)
-        local min = math.min(r, g, b)
-        local h, s, v = max, max, max
-        
-        local d = max - min
-        s = max == 0 and 0 or d / max
-        
-        if max == min then
-            h = 0
-        else
-            if max == r then
-                h = (g - b) / d + (g < b and 6 or 0)
-            elseif max == g then
-                h = (b - r) / d + 2
-            elseif max == b then
-                h = (r - g) / d + 4
-            end
-            h = h / 6
-        end
-        
-        return h, s, v
-    end
-    
-    local function updateColorFromWheel(position, brightness)
-        local x = (position.X - colorWheel.AbsolutePosition.X) / colorWheel.AbsoluteSize.X
-        local y = (position.Y - colorWheel.AbsolutePosition.Y) / colorWheel.AbsoluteSize.Y
-        
-        x = math.clamp(x, 0, 1)
-        y = math.clamp(y, 0, 1)
-        
-        -- Convert to HSV
-        local angle = math.atan2(y - 0.5, x - 0.5)
-        local distance = math.sqrt((x - 0.5)^2 + (y - 0.5)^2)
-        
-        local hue = (angle + math.pi) / (2 * math.pi)
-        local saturation = math.clamp(distance * 2, 0, 1)
-        local value = brightness or 1
-        
-        currentColor = HSVtoRGB(hue, saturation, value)
-        
-        -- Update displays
-        colorPreview.BackgroundColor3 = currentColor
-        currentColorDisplay.BackgroundColor3 = currentColor
-        
-        -- Update RGB inputs
-        rInput.Text = tostring(math.floor(currentColor.R * 255))
-        gInput.Text = tostring(math.floor(currentColor.G * 255))
-        bInput.Text = tostring(math.floor(currentColor.B * 255))
-        
-        if callback then
-            callback(currentColor)
-        end
-    end
-    
-    local function updateColorFromRGB()
-        local r = math.clamp(tonumber(rInput.Text) or 0, 0, 255) / 255
-        local g = math.clamp(tonumber(gInput.Text) or 0, 0, 255) / 255
-        local b = math.clamp(tonumber(bInput.Text) or 0, 0, 255) / 255
-        
-        currentColor = Color3.new(r, g, b)
-        
-        -- Update displays
-        colorPreview.BackgroundColor3 = currentColor
-        currentColorDisplay.BackgroundColor3 = currentColor
-        
-        if callback then
-            callback(currentColor)
-        end
-    end
-    
-    -- Toggle color window
-    colorPicker.MouseButton1Click:Connect(function()
-        isOpen = not isOpen
-        colorWindow.Visible = isOpen
-    end)
-    
-    -- Color wheel interaction
-    colorWheel.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDraggingWheel = true
-            colorWheelCursor.Visible = true
-            updateColorFromWheel(input.Position)
-        end
-    end)
-    
-    colorWheel.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDraggingWheel = false
-        end
-    end)
-    
-    -- Brightness slider interaction
-    brightnessSlider.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDraggingBrightness = true
-            local y = (input.Position.Y - brightnessSlider.AbsolutePosition.Y) / brightnessSlider.AbsoluteSize.Y
-            y = math.clamp(y, 0, 1)
-            brightnessCursor.Position = UDim2.new(0, -2, y, -3)
-            updateColorFromWheel(input.Position, 1 - y)
-        end
-    end)
-    
-    brightnessSlider.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDraggingBrightness = false
-        end
-    end)
-    
-    -- Mouse movement for dragging
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            if isDraggingWheel then
-                updateColorFromWheel(input.Position)
-            elseif isDraggingBrightness then
-                local y = (input.Position.Y - brightnessSlider.AbsolutePosition.Y) / brightnessSlider.AbsoluteSize.Y
-                y = math.clamp(y, 0, 1)
-                brightnessCursor.Position = UDim2.new(0, -2, y, -3)
-                updateColorFromWheel(input.Position, 1 - y)
+    -- Set default multi selections
+    if defaultSelections then
+        for _, option in ipairs(defaultSelections) do
+            if multiOptionStates[option] ~= nil then
+                multiOptionStates[option] = true
             end
         end
-    end)
+    end
     
-    -- RGB input changes
-    rInput.FocusLost:Connect(updateColorFromRGB)
-    gInput.FocusLost:Connect(updateColorFromRGB)
-    bInput.FocusLost:Connect(updateColorFromRGB)
+    local function updateMultiDisplayText()
+        local selectedCount = 0
+        local displayText = ""
+        
+        for option, isSelected in pairs(multiOptionStates) do
+            if isSelected then
+                selectedCount = selectedCount + 1
+                if selectedCount == 1 then
+                    displayText = option
+                elseif selectedCount == 2 then
+                    displayText = displayText .. ", " .. option
+                elseif selectedCount == 3 then
+                    displayText = displayText .. ", +" .. (selectedCount - 2) .. " more"
+                    break
+                end
+            end
+        end
+        
+        if selectedCount == 0 then
+            multiValueLabel.Text = "Select..."
+        else
+            multiValueLabel.Text = displayText
+        end
+        
+        -- Update multi selected options table
+        multiSelectedOptions = {}
+        for option, isSelected in pairs(multiOptionStates) do
+            if isSelected then
+                table.insert(multiSelectedOptions, option)
+            end
+        end
+    end
     
-    -- Close button
-    closeButton.MouseButton1Click:Connect(function()
-        isOpen = false
-        colorWindow.Visible = false
-    end)
+    updateMultiDisplayText()
     
-    -- Close when clicking outside
-    local function closeColorPicker(input)
-        if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local mousePos = input.Position
-            local colorWindowAbsPos = colorWindow.AbsolutePosition
-            local colorWindowSize = colorWindow.AbsoluteSize
+    -- Create multi option buttons with checkboxes
+    local multiOptionButtons = {}
+    for i, option in ipairs(options) do
+        local multiOptionButton = Instance.new("TextButton")
+        multiOptionButton.Name = option
+        multiOptionButton.Size = UDim2.new(1, 0, 0, 25)
+        multiOptionButton.BackgroundColor3 = Theme.Secondary
+        multiOptionButton.BorderSizePixel = 0
+        multiOptionButton.Text = ""
+        multiOptionButton.LayoutOrder = i
+        multiOptionButton.ZIndex = 21
+        multiOptionButton.Parent = multiOptionsFrame
+        
+        local multiOptionCorner = Instance.new("UICorner")
+        multiOptionCorner.CornerRadius = UDim.new(0, 6)
+        multiOptionCorner.Parent = multiOptionButton
+        
+        local multiCheckbox = Instance.new("Frame")
+        multiCheckbox.Name = "Checkbox"
+        multiCheckbox.Size = UDim2.new(0, 16, 0, 16)
+        multiCheckbox.Position = UDim2.new(0, 8, 0.5, -8)
+        multiCheckbox.BackgroundColor3 = Theme.Secondary
+        multiCheckbox.BorderSizePixel = 0
+        multiCheckbox.ZIndex = 22
+        multiCheckbox.Parent = multiOptionButton
+        
+        local multiCheckboxCorner = Instance.new("UICorner")
+        multiCheckboxCorner.CornerRadius = UDim.new(0, 4)
+        multiCheckboxCorner.Parent = multiCheckbox
+        
+        local multiCheckmark = Instance.new("ImageLabel")
+        multiCheckmark.Name = "Checkmark"
+        multiCheckmark.Size = UDim2.new(0, 12, 0, 12)
+        multiCheckmark.Position = UDim2.new(0.5, -6, 0.5, -6)
+        multiCheckmark.BackgroundTransparency = 1
+        multiCheckmark.Image = "rbxassetid://10734996880"
+        multiCheckmark.ImageColor3 = Theme.Text
+        multiCheckmark.Visible = false
+        multiCheckmark.ZIndex = 23
+        multiCheckmark.Parent = multiCheckbox
+        
+        local multiOptionText = Instance.new("TextLabel")
+        multiOptionText.Name = "Text"
+        multiOptionText.Size = UDim2.new(1, -35, 1, 0)
+        multiOptionText.Position = UDim2.new(0, 30, 0, 0)
+        multiOptionText.BackgroundTransparency = 1
+        multiOptionText.Text = option
+        multiOptionText.TextColor3 = Theme.TextSecondary
+        multiOptionText.TextSize = 12
+        multiOptionText.TextXAlignment = Enum.TextXAlignment.Left
+        multiOptionText.Font = Enum.Font.Gotham
+        multiOptionText.ZIndex = 22
+        multiOptionText.Parent = multiOptionButton
+        
+        -- Update multi checkbox appearance
+        local function updateMultiCheckbox()
+            if multiOptionStates[option] then
+                multiCheckbox.BackgroundColor3 = Theme.Accent
+                multiCheckmark.Visible = true
+                multiOptionText.TextColor3 = Theme.Text
+            else
+                multiCheckbox.BackgroundColor3 = Theme.Secondary
+                multiCheckmark.Visible = false
+                multiOptionText.TextColor3 = Theme.TextSecondary
+            end
+        end
+        
+        updateMultiCheckbox()
+        
+        -- Toggle multi selection
+        multiOptionButton.MouseButton1Click:Connect(function()
+            multiOptionStates[option] = not multiOptionStates[option]
+            updateMultiCheckbox()
+            updateMultiDisplayText()
             
-            if not (mousePos.X >= colorWindowAbsPos.X and mousePos.X <= colorWindowAbsPos.X + colorWindowSize.X and
-                   mousePos.Y >= colorWindowAbsPos.Y and mousePos.Y <= colorWindowAbsPos.Y + colorWindowSize.Y) then
-                isOpen = false
-                colorWindow.Visible = false
+            if callback then
+                callback(multiSelectedOptions, option, multiOptionStates[option])
+            end
+        end)
+        
+        -- Multi hover effects
+        multiOptionButton.MouseEnter:Connect(function()
+            if not isMobile then
+                TweenService:Create(multiOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+            end
+        end)
+        
+        multiOptionButton.MouseLeave:Connect(function()
+            if not isMobile then
+                TweenService:Create(multiOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+            end
+        end)
+        
+        table.insert(multiOptionButtons, multiOptionButton)
+    end
+    
+    -- Update multi scrolling frame size
+    multiOptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        multiOptionsFrame.CanvasSize = UDim2.new(0, 0, 0, multiOptionsLayout.AbsoluteContentSize.Y + 10)
+    end)
+    
+    -- Toggle multi dropdown
+    multiDropdown.MouseButton1Click:Connect(function()
+        multiIsOpen = not multiIsOpen
+        
+        if multiIsOpen then
+            multiOptionsFrame.Visible = true
+            local height = math.min(#options * 27 + 10, 200)
+            TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+            TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
+        else
+            TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+            TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            wait(0.2)
+            multiOptionsFrame.Visible = false
+        end
+    end)
+    
+    -- Close multi dropdown when clicking outside
+    local function closeMultiDropdown(input)
+        if multiIsOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mousePos = input.Position
+            local dropdownAbsPos = multiDropdown.AbsolutePosition
+            local dropdownSize = multiDropdown.AbsoluteSize
+            local optionsAbsPos = multiOptionsFrame.AbsolutePosition
+            local optionsSize = multiOptionsFrame.AbsoluteSize
+            
+            if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
+                   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
+                multiIsOpen = false
+                TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                wait(0.2)
+                multiOptionsFrame.Visible = false
             end
         end
     end
     
-    UserInputService.InputBegan:Connect(closeColorPicker)
+    UserInputService.InputBegan:Connect(closeMultiDropdown)
     
-    -- Create color picker object with methods
-    local colorPickerObj = {}
+    -- Create multi dropdown object with methods
+    local multiDropdownObj = {}
     
-    function colorPickerObj:GetColor()
-        return currentColor
+    function multiDropdownObj:GetSelections()
+        return multiSelectedOptions
     end
     
-    function colorPickerObj:SetColor(color)
-        currentColor = color
-        colorPreview.BackgroundColor3 = color
-        currentColorDisplay.BackgroundColor3 = color
+    function multiDropdownObj:SetSelections(selections)
+        for option, _ in pairs(multiOptionStates) do
+            multiOptionStates[option] = false
+        end
         
-        rInput.Text = tostring(math.floor(color.R * 255))
-        gInput.Text = tostring(math.floor(color.G * 255))
-        bInput.Text = tostring(math.floor(color.B * 255))
+        if selections then
+            for _, option in ipairs(selections) do
+                if multiOptionStates[option] ~= nil then
+                    multiOptionStates[option] = true
+                end
+            end
+        end
         
-        if callback then
-            callback(color)
+        updateMultiDisplayText()
+        
+        -- Update multi checkboxes
+        for _, multiOptionButton in ipairs(multiOptionButtons) do
+            local option = multiOptionButton.Name
+            local checkbox = multiOptionButton:FindFirstChild("Checkbox")
+            local checkmark = checkbox and checkbox:FindFirstChild("Checkmark")
+            local optionText = multiOptionButton:FindFirstChild("Text")
+            
+            if checkbox and checkmark and optionText then
+                if multiOptionStates[option] then
+                    checkbox.BackgroundColor3 = Theme.Accent
+                    checkmark.Visible = true
+                    optionText.TextColor3 = Theme.Text
+                else
+                    checkbox.BackgroundColor3 = Theme.Secondary
+                    checkmark.Visible = false
+                    optionText.TextColor3 = Theme.TextSecondary
+                end
+            end
         end
     end
     
-    function colorPickerObj:GetInstance()
-        return colorPicker
+    function multiDropdownObj:ClearSelections()
+        multiDropdownObj:SetSelections({})
     end
     
-    return colorPickerObj
+    function multiDropdownObj:GetInstance()
+        return multiDropdown
+    end
+    
+    return multiDropdownObj
 end
-
 
 -- Export the library
 return GuiLibrary
