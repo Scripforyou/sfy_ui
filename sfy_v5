@@ -834,11 +834,12 @@ end
 -- multi dropdown
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
 	local multiDropdown = Instance.new("TextButton")
-	multiDropdown.Name = dropdownName
+	multiDropdown.Name = "MultiDropdown_" .. dropdownName
 	multiDropdown.Size = UDim2.new(1, 0, 0, 35)
 	multiDropdown.BackgroundColor3 = Theme.Secondary
 	multiDropdown.BorderSizePixel = 0
 	multiDropdown.Text = ""
+	multiDropdown.ZIndex = 10
 	multiDropdown.Parent = tab.Frame
 	
 	local multiDropdownCorner = Instance.new("UICorner")
@@ -855,6 +856,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	multiLabel.TextSize = 14
 	multiLabel.TextXAlignment = Enum.TextXAlignment.Left
 	multiLabel.Font = Enum.Font.Gotham
+	multiLabel.ZIndex = 11
 	multiLabel.Parent = multiDropdown
 	
 	local multiValueLabel = Instance.new("TextLabel")
@@ -868,6 +870,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	multiValueLabel.TextXAlignment = Enum.TextXAlignment.Left
 	multiValueLabel.TextWrapped = true
 	multiValueLabel.Font = Enum.Font.Gotham
+	multiValueLabel.ZIndex = 11
 	multiValueLabel.Parent = multiDropdown
 	
 	local multiArrow = Instance.new("TextLabel")
@@ -879,9 +882,10 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	multiArrow.TextColor3 = Theme.TextSecondary
 	multiArrow.TextSize = 12
 	multiArrow.Font = Enum.Font.Gotham
+	multiArrow.ZIndex = 11
 	multiArrow.Parent = multiDropdown
 	
-	-- Multi Dropdown Options
+	-- Multi Dropdown Options (HIGH Z-INDEX)
 	local multiOptionsFrame = Instance.new("ScrollingFrame")
 	multiOptionsFrame.Name = "Options"
 	multiOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -892,15 +896,18 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	multiOptionsFrame.ScrollBarImageColor3 = Theme.Accent
 	multiOptionsFrame.Visible = false
 	multiOptionsFrame.ClipsDescendants = true
+	multiOptionsFrame.ZIndex = 100  -- Very high z-index to appear on top
 	multiOptionsFrame.Parent = multiDropdown
 	
 	local multiOptionsCorner = Instance.new("UICorner")
 	multiOptionsCorner.CornerRadius = UDim.new(0, 8)
+	multiOptionsCorner.ZIndex = 101
 	multiOptionsCorner.Parent = multiOptionsFrame
 	
 	local multiOptionsLayout = Instance.new("UIListLayout")
 	multiOptionsLayout.Padding = UDim.new(0, 2)
 	multiOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	multiOptionsLayout.ZIndex = 101
 	multiOptionsLayout.Parent = multiOptionsFrame
 	
 	local multiOptionsPadding = Instance.new("UIPadding")
@@ -908,6 +915,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	multiOptionsPadding.PaddingBottom = UDim.new(0, 5)
 	multiOptionsPadding.PaddingLeft = UDim.new(0, 5)
 	multiOptionsPadding.PaddingRight = UDim.new(0, 5)
+	multiOptionsPadding.ZIndex = 101
 	multiOptionsPadding.Parent = multiOptionsFrame
 	
 	local multiIsOpen = false
@@ -964,7 +972,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 	
 	updateMultiDisplayText()
 	
-	-- Create multi option buttons with checkboxes
+	-- Create multi option buttons with checkboxes (HIGH Z-INDEX)
 	local multiOptionButtons = {}
 	for i, option in ipairs(options) do
 		local multiOptionButton = Instance.new("TextButton")
@@ -974,10 +982,12 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 		multiOptionButton.BorderSizePixel = 0
 		multiOptionButton.Text = ""
 		multiOptionButton.LayoutOrder = i
+		multiOptionButton.ZIndex = 102  -- Higher than options frame
 		multiOptionButton.Parent = multiOptionsFrame
 		
 		local multiOptionCorner = Instance.new("UICorner")
 		multiOptionCorner.CornerRadius = UDim.new(0, 6)
+		multiOptionCorner.ZIndex = 103
 		multiOptionCorner.Parent = multiOptionButton
 		
 		local multiCheckbox = Instance.new("Frame")
@@ -986,10 +996,12 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 		multiCheckbox.Position = UDim2.new(0, 8, 0.5, -8)
 		multiCheckbox.BackgroundColor3 = Theme.Secondary
 		multiCheckbox.BorderSizePixel = 0
+		multiCheckbox.ZIndex = 103
 		multiCheckbox.Parent = multiOptionButton
 		
 		local multiCheckboxCorner = Instance.new("UICorner")
 		multiCheckboxCorner.CornerRadius = UDim.new(0, 4)
+		multiCheckboxCorner.ZIndex = 104
 		multiCheckboxCorner.Parent = multiCheckbox
 		
 		local multiCheckmark = Instance.new("ImageLabel")
@@ -999,7 +1011,8 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 		multiCheckmark.BackgroundTransparency = 1
 		multiCheckmark.Image = "rbxassetid://10734996880"
 		multiCheckmark.ImageColor3 = Theme.Text
-		multiCheckmark.Visible = multiOptionStates[option] -- Set initial visibility based on default
+		multiCheckmark.Visible = multiOptionStates[option]
+		multiCheckmark.ZIndex = 105  -- Highest z-index for checkmark
 		multiCheckmark.Parent = multiCheckbox
 		
 		local multiOptionText = Instance.new("TextLabel")
@@ -1012,6 +1025,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 		multiOptionText.TextSize = 12
 		multiOptionText.TextXAlignment = Enum.TextXAlignment.Left
 		multiOptionText.Font = Enum.Font.Gotham
+		multiOptionText.ZIndex = 103
 		multiOptionText.Parent = multiOptionButton
 		
 		-- Update checkbox appearance based on current state
@@ -1067,11 +1081,15 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 		multiIsOpen = not multiIsOpen
 		
 		if multiIsOpen then
+			-- Bring to front by setting high z-index
+			multiDropdown.ZIndex = 99
 			multiOptionsFrame.Visible = true
 			local height = math.min(#options * 27 + 10, 200)
 			TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
 			TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
 		else
+			-- Reset z-index when closed
+			multiDropdown.ZIndex = 10
 			TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
 			TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 			wait(0.2)
@@ -1091,6 +1109,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 			if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
 				   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
 				multiIsOpen = false
+				multiDropdown.ZIndex = 10  -- Reset z-index
 				TweenService:Create(multiArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
 				TweenService:Create(multiOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
 				wait(0.2)
