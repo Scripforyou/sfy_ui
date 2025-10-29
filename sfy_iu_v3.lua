@@ -1,4 +1,6 @@
--- Space Labs UI Menu System - FIXED ORDERING VERSION
+-- Space Labs UI Menu System - Enhanced with Left Tabs
+-- Complete library with all UI elements and left-side tab navigation
+
 local SpaceLabs = {}
 SpaceLabs.__index = SpaceLabs
 
@@ -33,10 +35,10 @@ SpaceLabs.COLOR_PALETTE = {
 -- Configuration with left tab layout
 SpaceLabs.Config = {
     DefaultSize = isMobile and UDim2.new(0, 350, 0, 500) or UDim2.new(0, 600, 0, 500),
-    TabWidth = isMobile and 80 or 100,
+    TabWidth = isMobile and 80 : 100, -- Width for left side tabs
     IconSize = UDim2.new(0, 50, 0, 50),
     TitleBarHeight = isMobile and 40 or 35,
-    TabHeight = isMobile and 45 or 40
+    TabHeight = isMobile and 45 : 40 -- Height for individual tabs
 }
 
 -- Create new instance
@@ -48,7 +50,7 @@ function SpaceLabs.new()
     self.IsMinimized = false
     self.Elements = {}
     self.TabScrollPosition = 0
-    self.ContentScrollPositions = {}
+    self.ContentScrollPositions = {} -- Store scroll position for each tab
     
     return self
 end
@@ -62,6 +64,8 @@ function SpaceLabs:Init()
     self.Enabled = true
     
     print("🚀 Space Labs Menu initialized with Left Tabs!")
+    print("📱 Mobile Optimized:", isMobile)
+    print("🖥️  Desktop Optimized:", isDesktop)
     
     return self
 end
@@ -77,6 +81,36 @@ function SpaceLabs:CreateGUI()
     
     self.ScreenGui = screenGui
     
+    -- Minimized Icon
+    local minimizedIcon = Instance.new("ImageButton")
+    minimizedIcon.Name = "MinimizedIcon"
+    minimizedIcon.Size = self.Config.IconSize
+    minimizedIcon.Position = UDim2.new(0, 20, 0, 20)
+    minimizedIcon.BackgroundColor3 = self.COLOR_PALETTE.PRIMARY
+    minimizedIcon.BorderSizePixel = 0
+    minimizedIcon.Image = "rbxassetid://10734951880"
+    minimizedIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    minimizedIcon.Visible = false
+    
+    local iconCorner = Instance.new("UICorner")
+    iconCorner.CornerRadius = UDim.new(1, 0)
+    iconCorner.Parent = minimizedIcon
+    
+    local iconShadow = Instance.new("ImageLabel")
+    iconShadow.Name = "Shadow"
+    iconShadow.Size = UDim2.new(1, 0, 1, 0)
+    iconShadow.Position = UDim2.new(0, 0, 0, 0)
+    iconShadow.BackgroundTransparency = 1
+    iconShadow.Image = "rbxassetid://1316045217"
+    iconShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    iconShadow.ImageTransparency = 0.8
+    iconShadow.ScaleType = Enum.ScaleType.Slice
+    iconShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+    iconShadow.Parent = minimizedIcon
+    
+    self.MinimizedIcon = minimizedIcon
+    minimizedIcon.Parent = screenGui
+    
     -- Main Frame
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
@@ -87,12 +121,58 @@ function SpaceLabs:CreateGUI()
     mainFrame.ClipsDescendants = true
     mainFrame.Visible = true
     
+    -- Store original properties
     self.OriginalSize = mainFrame.Size
     self.OriginalPosition = mainFrame.Position
+    
+    -- Space background effect
+    local spaceBg = Instance.new("Frame")
+    spaceBg.Name = "SpaceBackground"
+    spaceBg.Size = UDim2.new(1, 0, 1, 0)
+    spaceBg.BackgroundColor3 = self.COLOR_PALETTE.BACKGROUND
+    spaceBg.BorderSizePixel = 0
+    spaceBg.ZIndex = 0
+    
+    -- Add star effects
+    for i = 1, 20 do
+        local star = Instance.new("Frame")
+        star.Size = UDim2.new(0, math.random(1, 3), 0, math.random(1, 3))
+        star.Position = UDim2.new(0, math.random(0, 400), 0, math.random(0, 550))
+        star.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        star.BorderSizePixel = 0
+        star.BackgroundTransparency = math.random(5, 8) / 10
+        star.ZIndex = 1
+        
+        spawn(function()
+            while star and star.Parent do
+                local tween = TweenService:Create(star, TweenInfo.new(1), {BackgroundTransparency = math.random(3, 9) / 10})
+                tween:Play()
+                wait(math.random(1, 3))
+            end
+        end)
+        
+        star.Parent = spaceBg
+    end
+    
+    spaceBg.Parent = mainFrame
     
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = mainFrame
+    
+    -- Glow effect
+    local glow = Instance.new("ImageLabel")
+    glow.Name = "Glow"
+    glow.Size = UDim2.new(1, 40, 1, 40)
+    glow.Position = UDim2.new(0, -20, 0, -20)
+    glow.BackgroundTransparency = 1
+    glow.Image = "rbxassetid://4996891970"
+    glow.ImageColor3 = self.COLOR_PALETTE.PRIMARY
+    glow.ImageTransparency = 0.8
+    glow.ScaleType = Enum.ScaleType.Slice
+    glow.SliceCenter = Rect.new(20, 20, 280, 280)
+    glow.ZIndex = -1
+    glow.Parent = mainFrame
     
     -- Title Bar
     local titleBar = Instance.new("Frame")
@@ -121,6 +201,33 @@ function SpaceLabs:CreateGUI()
     titleText.ZIndex = 2
     titleText.Parent = titleBar
     
+    -- Minimize Button
+    local minimizeBtn = Instance.new("TextButton")
+    minimizeBtn.Name = "MinimizeButton"
+    minimizeBtn.Size = UDim2.new(0, self.Config.TitleBarHeight, 0, self.Config.TitleBarHeight)
+    minimizeBtn.Position = UDim2.new(1, -self.Config.TitleBarHeight, 0, 0)
+    minimizeBtn.BackgroundTransparency = 1
+    minimizeBtn.Text = "🗕"
+    minimizeBtn.TextColor3 = self.COLOR_PALETTE.TEXT
+    minimizeBtn.TextSize = isMobile and 18 or 16
+    minimizeBtn.Font = Enum.Font.Gotham
+    minimizeBtn.ZIndex = 2
+    minimizeBtn.Parent = titleBar
+    
+    -- Close Button for mobile
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Name = "CloseButton"
+    closeBtn.Size = UDim2.new(0, self.Config.TitleBarHeight, 0, self.Config.TitleBarHeight)
+    closeBtn.Position = UDim2.new(1, -self.Config.TitleBarHeight * 2, 0, 0)
+    closeBtn.BackgroundTransparency = 1
+    closeBtn.Text = "✕"
+    closeBtn.TextColor3 = self.COLOR_PALETTE.TEXT
+    closeBtn.TextSize = 16
+    closeBtn.Font = Enum.Font.Gotham
+    closeBtn.ZIndex = 2
+    closeBtn.Visible = isMobile
+    closeBtn.Parent = titleBar
+    
     -- Content Area with Left Tab Layout
     local contentFrame = Instance.new("Frame")
     contentFrame.Name = "ContentFrame"
@@ -132,7 +239,7 @@ function SpaceLabs:CreateGUI()
     
     self.ContentFrame = contentFrame
     
-    -- Left Tabs Container
+    -- Left Tabs Container (Scrollable)
     local tabsContainer = Instance.new("ScrollingFrame")
     tabsContainer.Name = "TabsContainer"
     tabsContainer.Size = UDim2.new(0, self.Config.TabWidth, 1, 0)
@@ -169,6 +276,9 @@ function SpaceLabs:CreateGUI()
     pagesContainer.Parent = contentArea
     
     self.MainFrame = mainFrame
+    self.TitleBar = titleBar
+    self.MinimizeBtn = minimizeBtn
+    self.CloseBtn = closeBtn
     self.TabsContainer = tabsContainer
     self.PagesContainer = pagesContainer
     
@@ -177,7 +287,200 @@ end
 
 -- Setup connections and events
 function SpaceLabs:SetupConnections()
-    -- Basic connections
+    -- Minimized icon functionality
+    self.MinimizedIcon.MouseButton1Click:Connect(function()
+        self:OpenFromIcon()
+    end)
+    
+    if isMobile then
+        self.MinimizedIcon.TouchTap:Connect(function()
+            self:OpenFromIcon()
+        end)
+    end
+    
+    -- Close button functionality
+    if isMobile then
+        self.CloseBtn.MouseButton1Click:Connect(function()
+            self:MinimizeToIcon()
+        end)
+        
+        self.CloseBtn.TouchTap:Connect(function()
+            self:MinimizeToIcon()
+        end)
+    end
+    
+    -- Minimize button functionality
+    self.MinimizeBtn.MouseButton1Click:Connect(function()
+        self:MinimizeToIcon()
+    end)
+    
+    if isMobile then
+        self.MinimizeBtn.TouchTap:Connect(function()
+            self:MinimizeToIcon()
+        end)
+    end
+    
+    -- Make ONLY the title bar draggable
+    self:MakeTitleBarDraggable()
+end
+
+-- Make only the title bar draggable
+function SpaceLabs:MakeTitleBarDraggable()
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        self.MainFrame.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+    
+    self.TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+           (isMobile and input.UserInputType == Enum.UserInputType.Touch) then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.MainFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    self.TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or 
+           input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+-- Make minimized icon draggable
+function SpaceLabs:MakeIconDraggable()
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        self.MinimizedIcon.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+    
+    self.MinimizedIcon.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+           (isMobile and input.UserInputType == Enum.UserInputType.Touch) then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.MinimizedIcon.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    self.MinimizedIcon.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or 
+           input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+-- Minimize menu to circle icon
+function SpaceLabs:MinimizeToIcon()
+    if self.IsMinimized then return end
+    
+    self.IsMinimized = true
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    -- Store current position before minimizing
+    self.MenuPositionBeforeMinimize = self.MainFrame.Position
+    
+    -- Calculate target position (current menu position)
+    local targetPosition = self.MainFrame.Position
+    local targetSize = self.Config.IconSize
+    
+    -- Tween to icon size at current position
+    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Size = targetSize})
+    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {BackgroundTransparency = 1})
+    
+    tween1:Play()
+    tween2:Play()
+    
+    -- Hide content during animation
+    self.ContentFrame.Visible = false
+    
+    -- After animation, hide main frame and show icon
+    delay(0.3, function()
+        if self.MainFrame then
+            self.MainFrame.Visible = false
+            self.MinimizedIcon.Visible = true
+            self.MinimizedIcon.Position = self.MainFrame.Position
+            self.ContentFrame.Visible = true
+            self.MainFrame.BackgroundTransparency = 0
+            self.MainFrame.Size = self.OriginalSize
+            
+            -- Make icon draggable
+            self:MakeIconDraggable()
+        end
+    end)
+end
+
+-- Open menu from circle icon
+function SpaceLabs:OpenFromIcon()
+    if not self.IsMinimized then return end
+    
+    self.IsMinimized = false
+    
+    -- Hide icon and show main frame at icon position
+    self.MinimizedIcon.Visible = false
+    self.MainFrame.Visible = true
+    self.MainFrame.Position = self.MinimizedIcon.Position
+    self.MainFrame.Size = self.Config.IconSize
+    self.MainFrame.BackgroundTransparency = 1
+    self.ContentFrame.Visible = false
+    
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    -- Tween to original size and opacity
+    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Size = self.OriginalSize})
+    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {BackgroundTransparency = 0})
+    
+    tween1:Play()
+    tween2:Play()
+    
+    -- Show content after a short delay
+    delay(0.2, function()
+        if self.MainFrame then
+            self.ContentFrame.Visible = true
+        end
+    end)
 end
 
 -- Create a new tab with left-side layout
@@ -199,45 +502,35 @@ function SpaceLabs:CreateTab(tabName, icon)
     corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = tabButton
     
-    -- Create the tab page as a Frame with UIListLayout (NOT ScrollingFrame)
-    local tabPage = Instance.new("Frame")
+    local tabPage = Instance.new("ScrollingFrame")
     tabPage.Name = "Page_" .. tabName
     tabPage.Size = UDim2.new(1, 0, 1, 0)
+    tabPage.Position = UDim2.new(0, 0, 0, 0)
     tabPage.BackgroundTransparency = 1
+    tabPage.ScrollBarThickness = 6
+    tabPage.ScrollBarImageColor3 = self.COLOR_PALETTE.PRIMARY
     tabPage.Visible = false
     tabPage.ZIndex = 2
     tabPage.Parent = self.PagesContainer
     
-    -- Create a ScrollingFrame INSIDE the tab page
-    local scrollFrame = Instance.new("ScrollingFrame")
-    scrollFrame.Name = "ScrollFrame"
-    scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-    scrollFrame.BackgroundTransparency = 1
-    scrollFrame.ScrollBarThickness = 6
-    scrollFrame.ScrollBarImageColor3 = self.COLOR_PALETTE.PRIMARY
-    scrollFrame.Parent = tabPage
-    
-    -- This is the key: Use UIListLayout for proper ordering
     local pageLayout = Instance.new("UIListLayout")
     pageLayout.Padding = UDim.new(0, isMobile and 15 or 10)
-    pageLayout.Parent = scrollFrame
+    pageLayout.Parent = tabPage
     
     local pagePadding = Instance.new("UIPadding")
     pagePadding.PaddingTop = UDim.new(0, isMobile and 15 or 10)
     pagePadding.PaddingLeft = UDim.new(0, isMobile and 15 or 10)
     pagePadding.PaddingRight = UDim.new(0, isMobile and 15 or 10)
-    pagePadding.Parent = scrollFrame
+    pagePadding.Parent = tabPage
     
-    -- Update canvas size when content changes
     pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + (isMobile and 20 or 15))
+        tabPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + (isMobile and 20 or 15))
     end)
     
     local tab = {
         Name = tabName,
         Button = tabButton,
         Page = tabPage,
-        ScrollFrame = scrollFrame, -- Store reference to scrolling frame
         Elements = {}
     }
     
@@ -255,6 +548,12 @@ function SpaceLabs:CreateTab(tabName, icon)
         self:SelectTab(tab)
     end)
     
+    if isMobile then
+        tabButton.TouchTap:Connect(function()
+            self:SelectTab(tab)
+        end)
+    end
+    
     tabButton.Parent = self.TabsContainer
     
     -- Update tabs container canvas size
@@ -263,7 +562,7 @@ function SpaceLabs:CreateTab(tabName, icon)
     return tab
 end
 
--- SelectTab method
+-- Select a tab
 function SpaceLabs:SelectTab(tab)
     if self.CurrentTab then
         self.CurrentTab.Button.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
@@ -276,18 +575,24 @@ function SpaceLabs:SelectTab(tab)
     tab.Button.TextColor3 = self.COLOR_PALETTE.TEXT
     tab.Page.Visible = true
     
-    -- Restore scroll position
+    -- Restore scroll position for this tab
     if self.ContentScrollPositions[tab.Name] then
-        tab.ScrollFrame.CanvasPosition = Vector2.new(0, self.ContentScrollPositions[tab.Name])
+        tab.Page.CanvasPosition = Vector2.new(0, self.ContentScrollPositions[tab.Name])
     end
+    
+    -- Save scroll position when tab changes
+    tabPage:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        self.ContentScrollPositions[tab.Name] = tab.Page.CanvasPosition.Y
+    end)
 end
 
--- FIXED UI Element Methods - All elements now use proper UIListLayout ordering
+-- Enhanced UI Element Factory Methods with all original features
 
 function SpaceLabs:CreateButton(tab, text, callback)
     local button = Instance.new("TextButton")
     button.Name = "Button_" .. text
     button.Size = UDim2.new(1, -20, 0, isMobile and 45 or 35)
+    button.Position = UDim2.new(0, 10, 0, 0)
     button.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
     button.BorderSizePixel = 0
     button.Text = text
@@ -311,7 +616,7 @@ function SpaceLabs:CreateButton(tab, text, callback)
         end)
     end
     
-    -- Touch feedback
+    -- Touch feedback for mobile
     local function onActivate()
         TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = self.COLOR_PALETTE.PRIMARY_DARK}):Play()
         wait(0.1)
@@ -320,9 +625,11 @@ function SpaceLabs:CreateButton(tab, text, callback)
     end
     
     button.MouseButton1Click:Connect(onActivate)
+    if isMobile then
+        button.TouchTap:Connect(onActivate)
+    end
     
-    -- Add to the SCROLL FRAME, not the page directly
-    button.Parent = tab.ScrollFrame
+    button.Parent = tab.Page
     table.insert(tab.Elements, button)
     
     return button
@@ -337,6 +644,7 @@ function SpaceLabs:CreateToggle(tab, text, defaultValue, callback)
     local toggleLabel = Instance.new("TextLabel")
     toggleLabel.Name = "Label"
     toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    toggleLabel.Position = UDim2.new(0, 0, 0, 0)
     toggleLabel.BackgroundTransparency = 1
     toggleLabel.Text = text
     toggleLabel.TextColor3 = self.COLOR_PALETTE.TEXT
@@ -372,7 +680,7 @@ function SpaceLabs:CreateToggle(tab, text, defaultValue, callback)
     toggleKnob.Parent = toggleButton
     toggleButton.Parent = toggleFrame
     
-    local isToggled = defaultValue or false
+    local isToggled = defaultValue
     
     local function toggleState()
         isToggled = not isToggled
@@ -395,8 +703,11 @@ function SpaceLabs:CreateToggle(tab, text, defaultValue, callback)
     end
     
     toggleButton.MouseButton1Click:Connect(toggleState)
+    if isMobile then
+        toggleButton.TouchTap:Connect(toggleState)
+    end
     
-    toggleFrame.Parent = tab.ScrollFrame
+    toggleFrame.Parent = tab.Page
     table.insert(tab.Elements, toggleFrame)
     
     return toggleFrame
@@ -411,6 +722,7 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     local sliderLabel = Instance.new("TextLabel")
     sliderLabel.Name = "Label"
     sliderLabel.Size = UDim2.new(1, 0, 0, isMobile and 25 or 20)
+    sliderLabel.Position = UDim2.new(0, 0, 0, 0)
     sliderLabel.BackgroundTransparency = 1
     sliderLabel.Text = text .. ": " .. defaultValue
     sliderLabel.TextColor3 = self.COLOR_PALETTE.TEXT
@@ -459,7 +771,7 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     knob.Parent = sliderFrame
     
     local isDragging = false
-    local currentValue = defaultValue or minValue
+    local currentValue = defaultValue
     
     local function updateSlider(value)
         local normalized = math.clamp((value - minValue) / (maxValue - minValue), 0, 1)
@@ -472,10 +784,16 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     
     local function beginDrag()
         isDragging = true
+        if isMobile then
+            knob.BackgroundColor3 = self.COLOR_PALETTE.PRIMARY
+        end
     end
     
     local function endDrag()
         isDragging = false
+        if isMobile then
+            knob.BackgroundColor3 = self.COLOR_PALETTE.TEXT
+        end
     end
     
     local function processInput(input)
@@ -483,7 +801,13 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
             local trackAbsolutePos = track.AbsolutePosition
             local trackAbsoluteSize = track.AbsoluteSize
             
-            local relativeX = (input.Position.X - trackAbsolutePos.X) / trackAbsoluteSize.X
+            local relativeX
+            if input.UserInputType == Enum.UserInputType.MouseMovement then
+                relativeX = (input.Position.X - trackAbsolutePos.X) / trackAbsoluteSize.X
+            else
+                relativeX = (input.Position.X - trackAbsolutePos.X) / trackAbsoluteSize.X
+            end
+            
             relativeX = math.clamp(relativeX, 0, 1)
             local value = minValue + (relativeX * (maxValue - minValue))
             updateSlider(value)
@@ -491,23 +815,304 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     end
     
     knob.MouseButton1Down:Connect(beginDrag)
+    if isMobile then
+        knob.TouchTap:Connect(beginDrag)
+    end
     
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             endDrag()
         end
     end)
     
     UserInputService.InputChanged:Connect(function(input)
-        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             processInput(input)
         end
     end)
     
-    sliderFrame.Parent = tab.ScrollFrame
+    sliderFrame.Parent = tab.Page
     table.insert(tab.Elements, sliderFrame)
     
     return sliderFrame
+end
+
+function SpaceLabs:CreateDropdown(tab, text, options, multiSelect, defaultValue, callback)
+    local dropdownFrame = Instance.new("Frame")
+    dropdownFrame.Name = "Dropdown_" .. text
+    dropdownFrame.Size = UDim2.new(1, -20, 0, isMobile and 40 or 30)
+    dropdownFrame.BackgroundTransparency = 1
+    
+    local dropdownButton = Instance.new("TextButton")
+    dropdownButton.Name = "DropdownButton"
+    dropdownButton.Size = UDim2.new(1, 0, 0, isMobile and 40 or 30)
+    dropdownButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+    dropdownButton.BorderSizePixel = 0
+    dropdownButton.Text = ""
+    dropdownButton.AutoButtonColor = false
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = dropdownButton
+    
+    local buttonText = Instance.new("TextLabel")
+    buttonText.Name = "ButtonText"
+    buttonText.Size = UDim2.new(0.8, 0, 1, 0)
+    buttonText.Position = UDim2.new(0, 10, 0, 0)
+    buttonText.BackgroundTransparency = 1
+    buttonText.Text = text
+    buttonText.TextColor3 = self.COLOR_PALETTE.TEXT
+    buttonText.TextSize = isMobile and 16 or 14
+    buttonText.TextXAlignment = Enum.TextXAlignment.Left
+    buttonText.Font = Enum.Font.Gotham
+    buttonText.Parent = dropdownButton
+    
+    local arrow = Instance.new("TextLabel")
+    arrow.Name = "Arrow"
+    arrow.Size = UDim2.new(0, 20, 1, 0)
+    arrow.Position = UDim2.new(1, -25, 0, 0)
+    arrow.BackgroundTransparency = 1
+    arrow.Text = "▼"
+    arrow.TextColor3 = self.COLOR_PALETTE.TEXT_SECONDARY
+    arrow.TextSize = isMobile and 14 or 12
+    arrow.Parent = dropdownButton
+    
+    dropdownButton.Parent = dropdownFrame
+    
+    local optionsFrame = Instance.new("ScrollingFrame")
+    optionsFrame.Name = "OptionsFrame"
+    optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+    optionsFrame.Position = UDim2.new(0, 0, 0, isMobile and 45 or 35)
+    optionsFrame.BackgroundColor3 = self.COLOR_PALETTE.SURFACE
+    optionsFrame.BorderSizePixel = 0
+    optionsFrame.ClipsDescendants = true
+    optionsFrame.Visible = false
+    optionsFrame.ScrollBarThickness = 4
+    optionsFrame.ScrollBarImageColor3 = self.COLOR_PALETTE.PRIMARY
+    optionsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    
+    local optionsCorner = Instance.new("UICorner")
+    optionsCorner.CornerRadius = UDim.new(0, 8)
+    optionsCorner.Parent = optionsFrame
+    
+    local optionsLayout = Instance.new("UIListLayout")
+    optionsLayout.Padding = UDim.new(0, 2)
+    optionsLayout.Parent = optionsFrame
+    
+    optionsFrame.Parent = dropdownFrame
+    
+    local isOpen = false
+    local selectedOptions = {}
+    
+    -- Initialize selected options
+    if multiSelect then
+        for _, option in ipairs(options) do
+            selectedOptions[option] = defaultValue and defaultValue[option] or false
+        end
+    else
+        for _, option in ipairs(options) do
+            selectedOptions[option] = false
+        end
+        if defaultValue then
+            selectedOptions[defaultValue] = true
+        end
+    end
+    
+    local function updateButtonText()
+        if multiSelect then
+            local selectedCount = 0
+            local selectedNames = {}
+            for optionName, selected in pairs(selectedOptions) do
+                if selected then
+                    selectedCount = selectedCount + 1
+                    table.insert(selectedNames, optionName)
+                end
+            end
+            if selectedCount == 0 then
+                buttonText.Text = text
+            else
+                buttonText.Text = text .. " (" .. table.concat(selectedNames, ", ") .. ")"
+            end
+        else
+            for optionName, selected in pairs(selectedOptions) do
+                if selected then
+                    buttonText.Text = optionName
+                    return
+                end
+            end
+            buttonText.Text = text
+        end
+    end
+    
+    local function createOption(optionName)
+        local optionButton = Instance.new("TextButton")
+        optionButton.Name = "Option_" .. optionName
+        optionButton.Size = UDim2.new(1, -10, 0, isMobile and 35 or 25)
+        optionButton.Position = UDim2.new(0, 5, 0, 0)
+        optionButton.BackgroundColor3 = selectedOptions[optionName] and self.COLOR_PALETTE.SURFACE_LIGHT or self.COLOR_PALETTE.SURFACE
+        optionButton.BorderSizePixel = 0
+        optionButton.Text = ""
+        optionButton.AutoButtonColor = false
+        
+        local optionText = Instance.new("TextLabel")
+        optionText.Name = "OptionText"
+        optionText.Size = UDim2.new(0.8, 0, 1, 0)
+        optionText.Position = UDim2.new(0, 10, 0, 0)
+        optionText.BackgroundTransparency = 1
+        optionText.Text = optionName
+        optionText.TextColor3 = self.COLOR_PALETTE.TEXT
+        optionText.TextSize = isMobile and 14 or 12
+        optionText.TextXAlignment = Enum.TextXAlignment.Left
+        optionText.Font = Enum.Font.Gotham
+        optionText.Parent = optionButton
+        
+        if multiSelect then
+            local checkBox = Instance.new("Frame")
+            checkBox.Name = "CheckBox"
+            checkBox.Size = UDim2.new(0, isMobile and 18 or 15, 0, isMobile and 18 or 15)
+            checkBox.Position = UDim2.new(1, isMobile and -25 or -20, 0, isMobile and 10 or 5)
+            checkBox.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+            checkBox.BorderSizePixel = 0
+            
+            local checkCorner = Instance.new("UICorner")
+            checkCorner.CornerRadius = UDim.new(0, 3)
+            checkCorner.Parent = checkBox
+            
+            local checkMark = Instance.new("ImageLabel")
+            checkMark.Name = "CheckMark"
+            checkMark.Size = UDim2.new(0, isMobile and 12 or 10, 0, isMobile and 12 or 10)
+            checkMark.Position = UDim2.new(0, isMobile and 3 or 2, 0, isMobile and 3 or 2)
+            checkMark.BackgroundTransparency = 1
+            checkMark.Image = "rbxassetid://10734951880"
+            checkMark.ImageColor3 = self.COLOR_PALETTE.SUCCESS
+            checkMark.Visible = selectedOptions[optionName]
+            checkMark.Parent = checkBox
+            
+            checkBox.Parent = optionButton
+        else
+            local radioDot = Instance.new("Frame")
+            radioDot.Name = "RadioDot"
+            radioDot.Size = UDim2.new(0, isMobile and 12 or 10, 0, isMobile and 12 or 10)
+            radioDot.Position = UDim2.new(1, isMobile and -25 or -20, 0, isMobile and 12 or 8)
+            radioDot.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+            radioDot.BorderSizePixel = 0
+            
+            local radioCorner = Instance.new("UICorner")
+            radioCorner.CornerRadius = UDim.new(0, 6)
+            radioCorner.Parent = radioDot
+            
+            local innerDot = Instance.new("Frame")
+            innerDot.Name = "InnerDot"
+            innerDot.Size = UDim2.new(0, isMobile and 6 or 4, 0, isMobile and 6 or 4)
+            innerDot.Position = UDim2.new(0, isMobile and 3 or 3, 0, isMobile and 3 or 3)
+            innerDot.BackgroundColor3 = self.COLOR_PALETTE.PRIMARY
+            innerDot.BorderSizePixel = 0
+            innerDot.Visible = selectedOptions[optionName]
+            
+            local innerCorner = Instance.new("UICorner")
+            innerCorner.CornerRadius = UDim.new(0, 3)
+            innerCorner.Parent = innerDot
+            
+            innerDot.Parent = radioDot
+            radioDot.Parent = optionButton
+        end
+        
+        optionButton.MouseButton1Click:Connect(function()
+            if multiSelect then
+                selectedOptions[optionName] = not selectedOptions[optionName]
+                local checkMark = optionButton:FindFirstChild("CheckBox"):FindFirstChild("CheckMark")
+                checkMark.Visible = selectedOptions[optionName]
+                
+                if selectedOptions[optionName] then
+                    optionButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+                else
+                    optionButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE
+                end
+            else
+                -- Single select - deselect all others and select this one
+                for name, _ in pairs(selectedOptions) do
+                    selectedOptions[name] = false
+                    local otherOption = optionsFrame:FindFirstChild("Option_" .. name)
+                    if otherOption then
+                        otherOption.BackgroundColor3 = self.COLOR_PALETTE.SURFACE
+                        local radioDot = otherOption:FindFirstChild("RadioDot")
+                        if radioDot then
+                            radioDot.InnerDot.Visible = false
+                        end
+                    end
+                end
+                selectedOptions[optionName] = true
+                optionButton.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
+                local radioDot = optionButton:FindFirstChild("RadioDot")
+                if radioDot then
+                    radioDot.InnerDot.Visible = true
+                end
+                
+                -- Close dropdown after selection for single select
+                isOpen = false
+                optionsFrame.Visible = false
+                arrow.Text = "▼"
+                TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            end
+            
+            updateButtonText()
+            if callback then callback(selectedOptions) end
+        end)
+        
+        if isMobile then
+            optionButton.TouchTap:Connect(function()
+                optionButton.MouseButton1Click:Fire()
+            end)
+        end
+        
+        return optionButton
+    end
+    
+    -- Populate options
+    for _, option in ipairs(options) do
+        local optionButton = createOption(option)
+        optionButton.Parent = optionsFrame
+    end
+    
+    optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        local contentSize = optionsLayout.AbsoluteContentSize
+        optionsFrame.CanvasSize = UDim2.new(0, 0, 0, contentSize.Y)
+        if isOpen then
+            local maxHeight = isMobile and 200 or 150
+            local newHeight = math.min(contentSize.Y, maxHeight)
+            optionsFrame.Size = UDim2.new(1, 0, 0, newHeight)
+        end
+    end)
+    
+    local function toggleDropdown()
+        isOpen = not isOpen
+        
+        if isOpen then
+            optionsFrame.Visible = true
+            arrow.Text = "▲"
+            local contentSize = optionsLayout.AbsoluteContentSize
+            local maxHeight = isMobile and 200 or 150
+            local newHeight = math.min(contentSize.Y, maxHeight)
+            TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, newHeight)}):Play()
+        else
+            arrow.Text = "▼"
+            TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            wait(0.2)
+            optionsFrame.Visible = false
+        end
+    end
+    
+    dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+    if isMobile then
+        dropdownButton.TouchTap:Connect(toggleDropdown)
+    end
+    
+    updateButtonText()
+    
+    dropdownFrame.Parent = tab.Page
+    table.insert(tab.Elements, dropdownFrame)
+    
+    return dropdownFrame
 end
 
 function SpaceLabs:CreateSeparator(tab, text)
@@ -539,7 +1144,7 @@ function SpaceLabs:CreateSeparator(tab, text)
         textLabel.Parent = separatorFrame
     end
     
-    separatorFrame.Parent = tab.ScrollFrame
+    separatorFrame.Parent = tab.Page
     table.insert(tab.Elements, separatorFrame)
     
     return separatorFrame
@@ -549,13 +1154,14 @@ function SpaceLabs:CreateLabel(tab, text, size)
     local label = Instance.new("TextLabel")
     label.Name = "Label_" .. text
     label.Size = UDim2.new(1, -20, 0, size or (isMobile and 25 or 20))
+    label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = self.COLOR_PALETTE.TEXT
     label.TextSize = isMobile and 16 or 14
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Font = Enum.Font.Gotham
-    label.Parent = tab.ScrollFrame
+    label.Parent = tab.Page
     table.insert(tab.Elements, label)
     
     return label
@@ -563,15 +1169,28 @@ end
 
 -- Show/Hide methods
 function SpaceLabs:Show()
-    self.MainFrame.Visible = true
+    if self.IsMinimized then
+        self:OpenFromIcon()
+    else
+        self.MainFrame.Visible = true
+        self.MinimizedIcon.Visible = false
+    end
 end
 
 function SpaceLabs:Hide()
-    self.MainFrame.Visible = false
+    if not self.IsMinimized then
+        self:MinimizeToIcon()
+    else
+        self.MinimizedIcon.Visible = false
+    end
 end
 
 function SpaceLabs:Toggle()
-    self.MainFrame.Visible = not self.MainFrame.Visible
+    if self.IsMinimized then
+        self:OpenFromIcon()
+    else
+        self:MinimizeToIcon()
+    end
 end
 
 -- Destroy method
