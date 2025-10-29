@@ -35,7 +35,7 @@ SpaceLabs.COLOR_PALETTE = {
 -- Configuration
 SpaceLabs.Config = {
     DefaultSize = isMobile and UDim2.new(0, 350, 0, 500) or UDim2.new(0, 400, 0, 550),
-    MinimizedSize = UDim2.new(0, 50, 0, 50),
+    IconSize = UDim2.new(0, 50, 0, 50),
     TitleBarHeight = isMobile and 40 or 35,
     TabBarHeight = isMobile and 50 or 40
 }
@@ -78,20 +78,20 @@ function SpaceLabs:CreateGUI()
     
     self.ScreenGui = screenGui
     
-    -- Mobile minimized icon (always visible on mobile, hidden on desktop by default)
-    local mobileIcon = Instance.new("ImageButton")
-    mobileIcon.Name = "MobileIcon"
-    mobileIcon.Size = self.Config.MinimizedSize
-    mobileIcon.Position = UDim2.new(0, 20, 0, 20)
-    mobileIcon.BackgroundColor3 = self.COLOR_PALETTE.PRIMARY
-    mobileIcon.BorderSizePixel = 0
-    mobileIcon.Visible = isMobile -- Only visible on mobile initially
-    mobileIcon.Image = "rbxassetid://10734951880" -- Star icon
-    mobileIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    -- Minimized Icon (Circle icon that appears when minimized)
+    local minimizedIcon = Instance.new("ImageButton")
+    minimizedIcon.Name = "MinimizedIcon"
+    minimizedIcon.Size = self.Config.IconSize
+    minimizedIcon.Position = UDim2.new(0, 20, 0, 20)
+    minimizedIcon.BackgroundColor3 = self.COLOR_PALETTE.PRIMARY
+    minimizedIcon.BorderSizePixel = 0
+    minimizedIcon.Image = "rbxassetid://10734951880" -- Star icon
+    minimizedIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    minimizedIcon.Visible = false -- Hidden by default
     
     local iconCorner = Instance.new("UICorner")
-    iconCorner.CornerRadius = UDim.new(0, 12)
-    iconCorner.Parent = mobileIcon
+    iconCorner.CornerRadius = UDim.new(1, 0) -- Perfect circle
+    iconCorner.Parent = minimizedIcon
     
     local iconShadow = Instance.new("ImageLabel")
     iconShadow.Name = "Shadow"
@@ -103,10 +103,10 @@ function SpaceLabs:CreateGUI()
     iconShadow.ImageTransparency = 0.8
     iconShadow.ScaleType = Enum.ScaleType.Slice
     iconShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-    iconShadow.Parent = mobileIcon
+    iconShadow.Parent = minimizedIcon
     
-    self.MobileIcon = mobileIcon
-    mobileIcon.Parent = screenGui
+    self.MinimizedIcon = minimizedIcon
+    minimizedIcon.Parent = screenGui
     
     -- Main Frame
     local mainFrame = Instance.new("Frame")
@@ -116,7 +116,7 @@ function SpaceLabs:CreateGUI()
     mainFrame.BackgroundColor3 = self.COLOR_PALETTE.BACKGROUND
     mainFrame.BorderSizePixel = 0
     mainFrame.ClipsDescendants = true
-    mainFrame.Visible = not isMobile -- Visible on desktop, hidden on mobile initially
+    mainFrame.Visible = true
     
     -- Store original properties
     self.OriginalSize = mainFrame.Size
@@ -172,7 +172,7 @@ function SpaceLabs:CreateGUI()
     glow.ZIndex = -1
     glow.Parent = mainFrame
     
-    -- Title Bar
+    -- Title Bar (only this part is draggable)
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBar"
     titleBar.Size = UDim2.new(1, 0, 0, self.Config.TitleBarHeight)
@@ -199,20 +199,20 @@ function SpaceLabs:CreateGUI()
     titleText.ZIndex = 2
     titleText.Parent = titleBar
     
-    -- Minimize Button (now toggles between menu and icon)
+    -- Minimize Button (toggles between menu and circle icon)
     local minimizeBtn = Instance.new("TextButton")
     minimizeBtn.Name = "MinimizeButton"
     minimizeBtn.Size = UDim2.new(0, self.Config.TitleBarHeight, 0, self.Config.TitleBarHeight)
     minimizeBtn.Position = UDim2.new(1, -self.Config.TitleBarHeight, 0, 0)
     minimizeBtn.BackgroundTransparency = 1
-    minimizeBtn.Text = isMobile and "🗕" or "🗕"
+    minimizeBtn.Text = "🗕"
     minimizeBtn.TextColor3 = self.COLOR_PALETTE.TEXT
     minimizeBtn.TextSize = isMobile and 18 or 16
     minimizeBtn.Font = Enum.Font.Gotham
     minimizeBtn.ZIndex = 2
     minimizeBtn.Parent = titleBar
     
-    -- Close Button (mobile only - same as minimize)
+    -- Close Button (same as minimize for mobile)
     local closeBtn = Instance.new("TextButton")
     closeBtn.Name = "CloseButton"
     closeBtn.Size = UDim2.new(0, self.Config.TitleBarHeight, 0, self.Config.TitleBarHeight)
@@ -226,7 +226,7 @@ function SpaceLabs:CreateGUI()
     closeBtn.Visible = isMobile
     closeBtn.Parent = titleBar
     
-    -- Content Area
+    -- Content Area (not draggable)
     local contentFrame = Instance.new("Frame")
     contentFrame.Name = "ContentFrame"
     contentFrame.Size = UDim2.new(1, 0, 1, -titleBar.Size.Y.Offset)
@@ -268,152 +268,64 @@ end
 
 -- Setup connections and events
 function SpaceLabs:SetupConnections()
-    -- Mobile icon functionality - opens menu
+    -- Minimized icon functionality - opens menu
+    self.MinimizedIcon.MouseButton1Click:Connect(function()
+        self:OpenFromIcon()
+    end)
+    
     if isMobile then
-        self.MobileIcon.MouseButton1Click:Connect(function()
+        self.MinimizedIcon.TouchTap:Connect(function()
             self:OpenFromIcon()
         end)
-        
-        self.MobileIcon.TouchTap:Connect(function()
-            self:OpenFromIcon()
-        end)
-        
-        -- Make mobile icon draggable
-        self:MakeDraggable(self.MobileIcon)
     end
     
-    -- Close button functionality (mobile) - closes to icon
+    -- Close button functionality - minimizes to icon
     if isMobile then
         self.CloseBtn.MouseButton1Click:Connect(function()
-            self:CloseToIcon()
+            self:MinimizeToIcon()
         end)
         
         self.CloseBtn.TouchTap:Connect(function()
-            self:CloseToIcon()
+            self:MinimizeToIcon()
         end)
     end
     
-    -- Minimize functionality - toggles between menu and icon
+    -- Minimize button functionality - toggles between menu and icon
     self.MinimizeBtn.MouseButton1Click:Connect(function()
-        if isMobile then
-            self:CloseToIcon()
-        else
-            self:ToggleMinimize()
-        end
+        self:MinimizeToIcon()
     end)
     
     if isMobile then
         self.MinimizeBtn.TouchTap:Connect(function()
-            self:CloseToIcon()
+            self:MinimizeToIcon()
         end)
     end
     
-    -- Make window draggable
-    self:MakeDraggable(self.TitleBar)
+    -- Make ONLY the title bar draggable
+    self:MakeTitleBarDraggable()
 end
 
--- Close menu and show icon (mobile behavior)
-function SpaceLabs:CloseToIcon()
-    if not isMobile then return end
-    
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    
-    -- Store current position before minimizing
-    self.MenuPositionBeforeMinimize = self.MainFrame.Position
-    
-    -- Tween to icon position and size
-    local iconPosition = self.MobileIcon.Position
-    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Position = iconPosition})
-    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {Size = self.Config.MinimizedSize})
-    
-    tween1:Play()
-    tween2:Play()
-    
-    -- Hide content during animation
-    self.ContentFrame.Visible = false
-    
-    -- After animation, hide main frame and show icon
-    delay(0.3, function()
-        self.MainFrame.Visible = false
-        self.MobileIcon.Visible = true
-        self.ContentFrame.Visible = true
-        self.MainFrame.Size = self.OriginalSize
-    end)
-end
-
--- Open menu from icon (mobile behavior)
-function SpaceLabs:OpenFromIcon()
-    if not isMobile then return end
-    
-    -- Hide icon and show main frame
-    self.MobileIcon.Visible = false
-    self.MainFrame.Visible = true
-    
-    -- Start from icon position and size
-    self.MainFrame.Position = self.MobileIcon.Position
-    self.MainFrame.Size = self.Config.MinimizedSize
-    self.ContentFrame.Visible = false
-    
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    
-    -- Tween to original position and size
-    local targetPosition = self.MenuPositionBeforeMinimize or UDim2.new(0.5, -175, 0.5, -250)
-    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Position = targetPosition})
-    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {Size = self.OriginalSize})
-    
-    tween1:Play()
-    tween2:Play()
-    
-    -- Show content after a short delay
-    delay(0.2, function()
-        self.ContentFrame.Visible = true
-    end)
-end
-
--- Toggle minimize state (desktop behavior)
-function SpaceLabs:ToggleMinimize()
-    self.IsMinimized = not self.IsMinimized
-    
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    
-    if self.IsMinimized then
-        -- Store current position and size
-        self.OriginalPosition = self.MainFrame.Position
-        self.OriginalSize = self.MainFrame.Size
-        
-        -- Minimize to just title bar
-        local targetSize = UDim2.new(self.OriginalSize.X.Scale, self.OriginalSize.X.Offset, 0, self.Config.TitleBarHeight)
-        local tween = TweenService:Create(self.MainFrame, tweenInfo, {Size = targetSize})
-        tween:Play()
-        
-        self.MinimizeBtn.Text = "🗖"
-        self.ContentFrame.Visible = false
-        
-    else
-        -- Restore original size
-        local tween = TweenService:Create(self.MainFrame, tweenInfo, {Size = self.OriginalSize})
-        tween:Play()
-        
-        self.MinimizeBtn.Text = "🗕"
-        self.ContentFrame.Visible = true
-    end
-end
-
--- Make element draggable
-function SpaceLabs:MakeDraggable(element)
+-- Make only the title bar draggable
+function SpaceLabs:MakeTitleBarDraggable()
     local dragging = false
     local dragInput, dragStart, startPos
     
     local function update(input)
         local delta = input.Position - dragStart
-        element.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        self.MainFrame.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
     end
     
-    element.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or (isMobile and input.UserInputType == Enum.UserInputType.Touch) then
+    self.TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+           (isMobile and input.UserInputType == Enum.UserInputType.Touch) then
             dragging = true
             dragStart = input.Position
-            startPos = element.Position
+            startPos = self.MainFrame.Position
             
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
@@ -423,8 +335,9 @@ function SpaceLabs:MakeDraggable(element)
         end
     end)
     
-    element.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    self.TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or 
+           input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
@@ -432,6 +345,121 @@ function SpaceLabs:MakeDraggable(element)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
+        end
+    end)
+end
+
+-- Make minimized icon draggable
+function SpaceLabs:MakeIconDraggable()
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        self.MinimizedIcon.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+    
+    self.MinimizedIcon.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+           (isMobile and input.UserInputType == Enum.UserInputType.Touch) then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.MinimizedIcon.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    self.MinimizedIcon.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or 
+           input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+-- Minimize menu to circle icon
+function SpaceLabs:MinimizeToIcon()
+    if self.IsMinimized then return end
+    
+    self.IsMinimized = true
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    -- Store current position before minimizing
+    self.MenuPositionBeforeMinimize = self.MainFrame.Position
+    
+    -- Calculate target position (current menu position)
+    local targetPosition = self.MainFrame.Position
+    local targetSize = self.Config.IconSize
+    
+    -- Tween to icon size at current position
+    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Size = targetSize})
+    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {BackgroundTransparency = 1})
+    
+    tween1:Play()
+    tween2:Play()
+    
+    -- Hide content during animation
+    self.ContentFrame.Visible = false
+    
+    -- After animation, hide main frame and show icon
+    delay(0.3, function()
+        if self.MainFrame then
+            self.MainFrame.Visible = false
+            self.MinimizedIcon.Visible = true
+            self.MinimizedIcon.Position = self.MainFrame.Position
+            self.ContentFrame.Visible = true
+            self.MainFrame.BackgroundTransparency = 0
+            self.MainFrame.Size = self.OriginalSize
+            
+            -- Make icon draggable
+            self:MakeIconDraggable()
+        end
+    end)
+end
+
+-- Open menu from circle icon
+function SpaceLabs:OpenFromIcon()
+    if not self.IsMinimized then return end
+    
+    self.IsMinimized = false
+    
+    -- Hide icon and show main frame at icon position
+    self.MinimizedIcon.Visible = false
+    self.MainFrame.Visible = true
+    self.MainFrame.Position = self.MinimizedIcon.Position
+    self.MainFrame.Size = self.Config.IconSize
+    self.MainFrame.BackgroundTransparency = 1
+    self.ContentFrame.Visible = false
+    
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    -- Tween to original size and opacity
+    local tween1 = TweenService:Create(self.MainFrame, tweenInfo, {Size = self.OriginalSize})
+    local tween2 = TweenService:Create(self.MainFrame, tweenInfo, {BackgroundTransparency = 0})
+    
+    tween1:Play()
+    tween2:Play()
+    
+    -- Show content after a short delay
+    delay(0.2, function()
+        if self.MainFrame then
+            self.ContentFrame.Visible = true
         end
     end)
 end
@@ -646,38 +674,27 @@ end
 
 -- Show/Hide methods
 function SpaceLabs:Show()
-    if self.MainFrame then
-        if isMobile then
-            self.MobileIcon.Visible = false
-            self.MainFrame.Visible = true
-            self.MainFrame.Size = self.OriginalSize
-            self.MainFrame.Position = self.MenuPositionBeforeMinimize or UDim2.new(0.5, -175, 0.5, -250)
-            self.ContentFrame.Visible = true
-        else
-            self.MainFrame.Visible = true
-        end
+    if self.IsMinimized then
+        self:OpenFromIcon()
+    else
+        self.MainFrame.Visible = true
+        self.MinimizedIcon.Visible = false
     end
 end
 
 function SpaceLabs:Hide()
-    if self.MainFrame then
-        if isMobile then
-            self:CloseToIcon()
-        else
-            self.MainFrame.Visible = false
-        end
+    if not self.IsMinimized then
+        self:MinimizeToIcon()
+    else
+        self.MinimizedIcon.Visible = false
     end
 end
 
 function SpaceLabs:Toggle()
-    if isMobile then
-        if self.MainFrame.Visible then
-            self:CloseToIcon()
-        else
-            self:OpenFromIcon()
-        end
+    if self.IsMinimized then
+        self:OpenFromIcon()
     else
-        self.MainFrame.Visible = not self.MainFrame.Visible
+        self:MinimizeToIcon()
     end
 end
 
