@@ -1755,6 +1755,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     multiDropdown.BackgroundColor3 = Theme.Secondary
     multiDropdown.BorderSizePixel = 0
     multiDropdown.Text = ""
+    multiDropdown.ZIndex = 20  -- Higher z-index
     multiDropdown.Parent = tab.Frame
     
     local corner = Instance.new("UICorner")
@@ -1771,6 +1772,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     label.TextSize = 14
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Font = Enum.Font.Gotham
+    label.ZIndex = 21  -- Higher than parent
     label.Parent = multiDropdown
     
     local valueLabel = Instance.new("TextLabel")
@@ -1783,6 +1785,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     valueLabel.TextSize = 12
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
     valueLabel.Font = Enum.Font.Gotham
+    valueLabel.ZIndex = 21
     valueLabel.Parent = multiDropdown
     
     local arrow = Instance.new("TextLabel")
@@ -1794,9 +1797,10 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     arrow.TextColor3 = Theme.TextSecondary
     arrow.TextSize = 12
     arrow.Font = Enum.Font.Gotham
+    arrow.ZIndex = 21
     arrow.Parent = multiDropdown
     
-    -- Options Frame (SIMPLIFIED - no z-index issues)
+    -- Options Frame with high z-index
     local optionsFrame = Instance.new("Frame")
     optionsFrame.Name = "OptionsFrame"
     optionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -1805,6 +1809,7 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     optionsFrame.BorderSizePixel = 0
     optionsFrame.Visible = false
     optionsFrame.ClipsDescendants = true
+    optionsFrame.ZIndex = 50  -- Very high z-index
     optionsFrame.Parent = multiDropdown
     
     local optionsCorner = Instance.new("UICorner")
@@ -1855,26 +1860,32 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     updateDisplayText()
     
-    -- Create option buttons
+    -- Create option buttons with proper z-index
     for i, option in ipairs(options) do
         local optionButton = Instance.new("TextButton")
         optionButton.Name = "Option_" .. option
         optionButton.Size = UDim2.new(1, 0, 0, 25)
         optionButton.BackgroundColor3 = Theme.Secondary
         optionButton.BorderSizePixel = 0
-        optionButton.Text = option  -- TEXT IS DIRECTLY ON THE BUTTON
+        optionButton.Text = option
         optionButton.TextColor3 = Theme.Text
         optionButton.TextSize = 12
         optionButton.TextXAlignment = Enum.TextXAlignment.Left
         optionButton.Font = Enum.Font.Gotham
         optionButton.LayoutOrder = i
+        optionButton.ZIndex = 51  -- Higher than options frame
         optionButton.Parent = optionsFrame
         
         local optionCorner = Instance.new("UICorner")
         optionCorner.CornerRadius = UDim.new(0, 6)
         optionCorner.Parent = optionButton
         
-        -- Simple selection indicator (colored background)
+        -- Add padding to text
+        local textPadding = Instance.new("UIPadding")
+        textPadding.PaddingLeft = UDim.new(0, 10)
+        textPadding.Parent = optionButton
+        
+        -- Simple selection indicator
         if selectedOptions[option] then
             optionButton.BackgroundColor3 = Theme.Accent
         end
@@ -1915,7 +1926,9 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     -- Update layout
     optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         local contentHeight = optionsLayout.AbsoluteContentSize.Y + 16
-        optionsFrame.Size = UDim2.new(1, 0, 0, contentHeight)
+        local maxHeight = 200
+        local targetHeight = math.min(contentHeight, maxHeight)
+        optionsFrame.Size = UDim2.new(1, 0, 0, targetHeight)
     end)
     
     -- Toggle dropdown
@@ -1925,8 +1938,20 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
         
         if isOpen then
             TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+            
+            -- Ensure it's on top by increasing z-index temporarily
+            multiDropdown.ZIndex = 60
+            optionsFrame.ZIndex = 61
+            for _, child in pairs(optionsFrame:GetChildren()) do
+                if child:IsA("GuiObject") then
+                    child.ZIndex = 62
+                end
+            end
         else
             TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+            -- Reset z-index when closed
+            multiDropdown.ZIndex = 20
+            optionsFrame.ZIndex = 50
         end
     end)
     
@@ -1936,12 +1961,21 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
             local mousePos = input.Position
             local absPos = multiDropdown.AbsolutePosition
             local absSize = multiDropdown.AbsoluteSize
+            local optionsAbsPos = optionsFrame.AbsolutePosition
+            local optionsSize = optionsFrame.AbsoluteSize
             
-            if not (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
-                   mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y + optionsFrame.AbsoluteSize.Y) then
+            local isInsideDropdown = (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
+                                    mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y)
+            
+            local isInsideOptions = (mousePos.X >= optionsAbsPos.X and mousePos.X <= optionsAbsPos.X + optionsSize.X and
+                                   mousePos.Y >= optionsAbsPos.Y and mousePos.Y <= optionsAbsPos.Y + optionsSize.Y)
+            
+            if not isInsideDropdown and not isInsideOptions then
                 isOpen = false
                 optionsFrame.Visible = false
                 TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                multiDropdown.ZIndex = 20
+                optionsFrame.ZIndex = 50
             end
         end
     end
@@ -2004,6 +2038,5 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     
     return multiDropdownObj
 end
-
 -- Export the library
 return GuiLibrary
