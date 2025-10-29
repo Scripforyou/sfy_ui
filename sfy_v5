@@ -630,194 +630,200 @@ function GuiLibrary:CreateSlider(tab, sliderName, minValue, maxValue, defaultVal
 	
 	return slider
 end
-
 function GuiLibrary:CreateDropdown(tab, dropdownName, options, defaultSelection, callback)
-	local singleDropdown = Instance.new("TextButton")
-	singleDropdown.Name = dropdownName
-	singleDropdown.Size = UDim2.new(1, 0, 0, 35)
-	singleDropdown.BackgroundColor3 = Theme.Secondary
-	singleDropdown.BorderSizePixel = 0
-	singleDropdown.Text = ""
-	singleDropdown.Parent = tab.Frame
-	
-	local singleDropdownCorner = Instance.new("UICorner")
-	singleDropdownCorner.CornerRadius = UDim.new(0, 8)
-	singleDropdownCorner.Parent = singleDropdown
-	
-	local singleLabel = Instance.new("TextLabel")
-	singleLabel.Name = "Label"
-	singleLabel.Size = UDim2.new(0.7, 0, 1, 0)
-	singleLabel.Position = UDim2.new(0, 15, 0, 0)
-	singleLabel.BackgroundTransparency = 1
-	singleLabel.Text = dropdownName
-	singleLabel.TextColor3 = Theme.Text
-	singleLabel.TextSize = 14
-	singleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	singleLabel.Font = Enum.Font.Gotham
-	singleLabel.Parent = singleDropdown
-	
-	local singleValueLabel = Instance.new("TextLabel")
-	singleValueLabel.Name = "Value"
-	singleValueLabel.Size = UDim2.new(0.25, 0, 1, 0)
-	singleValueLabel.Position = UDim2.new(0.75, 0, 0, 0)
-	singleValueLabel.BackgroundTransparency = 1
-	singleValueLabel.Text = defaultSelection or "Select..."
-	singleValueLabel.TextColor3 = Theme.TextSecondary
-	singleValueLabel.TextSize = 12
-	singleValueLabel.TextXAlignment = Enum.TextXAlignment.Right
-	singleValueLabel.Font = Enum.Font.Gotham
-	singleValueLabel.Parent = singleDropdown
-	
-	local singleArrow = Instance.new("TextLabel")
-	singleArrow.Name = "Arrow"
-	singleArrow.Size = UDim2.new(0, 20, 0, 20)
-	singleArrow.Position = UDim2.new(1, -25, 0.5, -10)
-	singleArrow.BackgroundTransparency = 1
-	singleArrow.Text = "▼"
-	singleArrow.TextColor3 = Theme.TextSecondary
-	singleArrow.TextSize = 12
-	singleArrow.Font = Enum.Font.Gotham
-	singleArrow.Parent = singleDropdown
-	
-	-- Single Dropdown Options
-	local singleOptionsFrame = Instance.new("ScrollingFrame")
-	singleOptionsFrame.Name = "Options"
-	singleOptionsFrame.Size = UDim2.new(1, 0, 0, 0)
-	singleOptionsFrame.Position = UDim2.new(0, 0, 1, 5)
-	singleOptionsFrame.BackgroundColor3 = Theme.Secondary
-	singleOptionsFrame.BorderSizePixel = 0
-	singleOptionsFrame.ScrollBarThickness = 4
-	singleOptionsFrame.ScrollBarImageColor3 = Theme.Accent
-	singleOptionsFrame.Visible = false
-	singleOptionsFrame.ClipsDescendants = true
-	singleOptionsFrame.Parent = singleDropdown
-	
-	local singleOptionsCorner = Instance.new("UICorner")
-	singleOptionsCorner.CornerRadius = UDim.new(0, 8)
-	singleOptionsCorner.Parent = singleOptionsFrame
-	
-	local singleOptionsLayout = Instance.new("UIListLayout")
-	singleOptionsLayout.Padding = UDim.new(0, 2)
-	singleOptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	singleOptionsLayout.Parent = singleOptionsFrame
-	
-	local singleOptionsPadding = Instance.new("UIPadding")
-	singleOptionsPadding.PaddingTop = UDim.new(0, 5)
-	singleOptionsPadding.PaddingBottom = UDim.new(0, 5)
-	singleOptionsPadding.PaddingLeft = UDim.new(0, 5)
-	singleOptionsPadding.PaddingRight = UDim.new(0, 5)
-	singleOptionsPadding.Parent = singleOptionsFrame
-	
-	local singleIsOpen = false
-	local singleSelectedOption = defaultSelection
-	
-	-- Create single option buttons
-	for i, option in ipairs(options) do
-		local singleOptionButton = Instance.new("TextButton")
-		singleOptionButton.Name = option
-		singleOptionButton.Size = UDim2.new(1, 0, 0, 25)
-		singleOptionButton.BackgroundColor3 = Theme.Secondary
-		singleOptionButton.BorderSizePixel = 0
-		singleOptionButton.Text = option
-		singleOptionButton.TextColor3 = Theme.TextSecondary
-		singleOptionButton.TextSize = 12
-		singleOptionButton.Font = Enum.Font.Gotham
-		singleOptionButton.LayoutOrder = i
-		singleOptionButton.Parent = singleOptionsFrame
-		
-		local singleOptionCorner = Instance.new("UICorner")
-		singleOptionCorner.CornerRadius = UDim.new(0, 6)
-		singleOptionCorner.Parent = singleOptionButton
-		
-		singleOptionButton.MouseButton1Click:Connect(function()
-			singleSelectedOption = option
-			singleValueLabel.Text = option
-			singleIsOpen = false
-			singleOptionsFrame.Visible = false
-			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-			
-			if callback then
-				callback(option)
-			end
-		end)
-		
-		singleOptionButton.MouseEnter:Connect(function()
-			if not isMobile then
-				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
-				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
-			end
-		end)
-		
-		singleOptionButton.MouseLeave:Connect(function()
-			if not isMobile then
-				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
-				TweenService:Create(singleOptionButton, TweenInfo.new(0.1), {TextColor3 = Theme.TextSecondary}):Play()
-			end
-		end)
-	end
-	
-	-- Update single scrolling frame size
-	singleOptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		singleOptionsFrame.CanvasSize = UDim2.new(0, 0, 0, singleOptionsLayout.AbsoluteContentSize.Y + 10)
-	end)
-	
-	-- Toggle single dropdown
-	singleDropdown.MouseButton1Click:Connect(function()
-		singleIsOpen = not singleIsOpen
-		
-		if singleIsOpen then
-			singleOptionsFrame.Visible = true
-			local height = math.min(#options * 27 + 10, 200)
-			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
-			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
-		else
-			TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-			TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-			wait(0.2)
-			singleOptionsFrame.Visible = false
-		end
-	end)
-	
-	-- Close single dropdown when clicking outside
-	local function closeSingleDropdown(input)
-		if singleIsOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
-			local mousePos = input.Position
-			local dropdownAbsPos = singleDropdown.AbsolutePosition
-			local dropdownSize = singleDropdown.AbsoluteSize
-			local optionsAbsPos = singleOptionsFrame.AbsolutePosition
-			local optionsSize = singleOptionsFrame.AbsoluteSize
-			
-			if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
-				   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
-				singleIsOpen = false
-				TweenService:Create(singleArrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
-				TweenService:Create(singleOptionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-				wait(0.2)
-				singleOptionsFrame.Visible = false
-			end
-		end
-	end
-	
-	UserInputService.InputBegan:Connect(closeSingleDropdown)
-	
-	-- Function to get current single selection
-	function singleDropdown:GetSelection()
-		return singleSelectedOption
-	end
-	
-	-- Function to set single selection
-	function singleDropdown:SetSelection(selection)
-		if selection then
-			singleSelectedOption = selection
-			singleValueLabel.Text = selection
-		else
-			singleSelectedOption = nil
-			singleValueLabel.Text = "Select..."
-		end
-	end
-	
-	return singleDropdown
+    local dropdown = Instance.new("TextButton")
+    dropdown.Name = "Dropdown_" .. dropdownName
+    dropdown.Size = UDim2.new(1, 0, 0, 35)
+    dropdown.BackgroundColor3 = Theme.Secondary
+    dropdown.BorderSizePixel = 0
+    dropdown.Text = ""
+    dropdown.ZIndex = 5
+    dropdown.Parent = tab.Frame
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = dropdown
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = dropdownName
+    label.TextColor3 = Theme.Text
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Font = Enum.Font.Gotham
+    label.ZIndex = 6
+    label.Parent = dropdown
+    
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Name = "Value"
+    valueLabel.Size = UDim2.new(0.25, 0, 1, 0)
+    valueLabel.Position = UDim2.new(0.75, 0, 0, 0)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Text = defaultSelection or "Select..."
+    valueLabel.TextColor3 = Theme.TextSecondary
+    valueLabel.TextSize = 12
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.ZIndex = 6
+    valueLabel.Parent = dropdown
+    
+    local arrow = Instance.new("TextLabel")
+    arrow.Name = "Arrow"
+    arrow.Size = UDim2.new(0, 20, 0, 20)
+    arrow.Position = UDim2.new(1, -25, 0.5, -10)
+    arrow.BackgroundTransparency = 1
+    arrow.Text = "▼"
+    arrow.TextColor3 = Theme.TextSecondary
+    arrow.TextSize = 12
+    arrow.Font = Enum.Font.Gotham
+    arrow.ZIndex = 6
+    arrow.Parent = dropdown
+    
+    -- Options Frame
+    local optionsFrame = Instance.new("ScrollingFrame")
+    optionsFrame.Name = "Options"
+    optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+    optionsFrame.Position = UDim2.new(0, 0, 1, 5)
+    optionsFrame.BackgroundColor3 = Theme.Secondary
+    optionsFrame.BorderSizePixel = 0
+    optionsFrame.ScrollBarThickness = 4
+    optionsFrame.ScrollBarImageColor3 = Theme.Accent
+    optionsFrame.Visible = false
+    optionsFrame.ClipsDescendants = true
+    optionsFrame.ZIndex = 20
+    optionsFrame.Parent = dropdown
+    
+    local optionsCorner = Instance.new("UICorner")
+    optionsCorner.CornerRadius = UDim.new(0, 8)
+    optionsCorner.Parent = optionsFrame
+    
+    local optionsLayout = Instance.new("UIListLayout")
+    optionsLayout.Padding = UDim.new(0, 2)
+    optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    optionsLayout.Parent = optionsFrame
+    
+    local optionsPadding = Instance.new("UIPadding")
+    optionsPadding.PaddingTop = UDim.new(0, 5)
+    optionsPadding.PaddingBottom = UDim.new(0, 5)
+    optionsPadding.PaddingLeft = UDim.new(0, 5)
+    optionsPadding.PaddingRight = UDim.new(0, 5)
+    optionsPadding.Parent = optionsFrame
+    
+    local isOpen = false
+    local selectedOption = defaultSelection
+    
+    -- Create options
+    for i, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Name = option
+        optionButton.Size = UDim2.new(1, 0, 0, 25)
+        optionButton.BackgroundColor3 = Theme.Secondary
+        optionButton.BorderSizePixel = 0
+        optionButton.Text = option
+        optionButton.TextColor3 = Theme.TextSecondary
+        optionButton.TextSize = 12
+        optionButton.Font = Enum.Font.Gotham
+        optionButton.LayoutOrder = i
+        optionButton.ZIndex = 21
+        optionButton.Parent = optionsFrame
+        
+        local optionCorner = Instance.new("UICorner")
+        optionCorner.CornerRadius = UDim.new(0, 6)
+        optionCorner.Parent = optionButton
+        
+        optionButton.MouseButton1Click:Connect(function()
+            selectedOption = option
+            valueLabel.Text = option
+            isOpen = false
+            optionsFrame.Visible = false
+            TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+            TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            
+            if callback then
+                callback(option)
+            end
+        end)
+        
+        optionButton.MouseEnter:Connect(function()
+            if not isMobile then
+                TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+                TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
+            end
+        end)
+        
+        optionButton.MouseLeave:Connect(function()
+            if not isMobile then
+                TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+                TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.TextSecondary}):Play()
+            end
+        end)
+    end
+    
+    -- Update canvas size
+    optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        optionsFrame.CanvasSize = UDim2.new(0, 0, 0, optionsLayout.AbsoluteContentSize.Y + 10)
+    end)
+    
+    -- Toggle dropdown
+    dropdown.MouseButton1Click:Connect(function()
+        isOpen = not isOpen
+        
+        if isOpen then
+            optionsFrame.Visible = true
+            local height = math.min(#options * 27 + 10, 200)
+            TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+            TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
+        else
+            TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+            TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+            wait(0.2)
+            optionsFrame.Visible = false
+        end
+    end)
+    
+    -- Close dropdown
+    local function closeDropdown(input)
+        if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mousePos = input.Position
+            local dropdownAbsPos = dropdown.AbsolutePosition
+            local dropdownSize = dropdown.AbsoluteSize
+            local optionsAbsPos = optionsFrame.AbsolutePosition
+            local optionsSize = optionsFrame.AbsoluteSize
+            
+            if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
+                   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
+                isOpen = false
+                TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                wait(0.2)
+                optionsFrame.Visible = false
+            end
+        end
+    end
+    
+    UserInputService.InputBegan:Connect(closeDropdown)
+    
+    -- Create a table to return with methods instead of adding them to the TextButton
+    local dropdownObject = {
+        Instance = dropdown,
+        GetSelection = function()
+            return selectedOption
+        end,
+        SetSelection = function(selection)
+            if selection then
+                selectedOption = selection
+                valueLabel.Text = selection
+            else
+                selectedOption = nil
+                valueLabel.Text = "Select..."
+            end
+        end
+    }
+    
+    return dropdownObject
 end
 
 function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelections, callback)
