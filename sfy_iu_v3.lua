@@ -602,7 +602,6 @@ function SpaceLabs:CreateButton(tab, text, callback)
     local button = Instance.new("TextButton")
     button.Name = "Button_" .. text
     button.Size = UDim2.new(1, -20, 0, isMobile and 45 or 35)
-    button.Position = UDim2.new(0, 10, 0, 0)
     button.BackgroundColor3 = self.COLOR_PALETTE.SURFACE_LIGHT
     button.BorderSizePixel = 0
     button.Text = text
@@ -654,7 +653,6 @@ function SpaceLabs:CreateToggle(tab, text, defaultValue, callback)
     local toggleLabel = Instance.new("TextLabel")
     toggleLabel.Name = "Label"
     toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
-    toggleLabel.Position = UDim2.new(0, 0, 0, 0)
     toggleLabel.BackgroundTransparency = 1
     toggleLabel.Text = text
     toggleLabel.TextColor3 = self.COLOR_PALETTE.TEXT
@@ -732,7 +730,6 @@ function SpaceLabs:CreateSlider(tab, text, minValue, maxValue, defaultValue, cal
     local sliderLabel = Instance.new("TextLabel")
     sliderLabel.Name = "Label"
     sliderLabel.Size = UDim2.new(1, 0, 0, isMobile and 25 or 20)
-    sliderLabel.Position = UDim2.new(0, 0, 0, 0)
     sliderLabel.BackgroundTransparency = 1
     sliderLabel.Text = text .. ": " .. defaultValue
     sliderLabel.TextColor3 = self.COLOR_PALETTE.TEXT
@@ -1172,7 +1169,6 @@ function SpaceLabs:CreateLabel(tab, text, size)
     local label = Instance.new("TextLabel")
     label.Name = "Label_" .. text
     label.Size = UDim2.new(1, -20, 0, size or (isMobile and 25 or 20))
-    label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = self.COLOR_PALETTE.TEXT
