@@ -1027,12 +1027,287 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, optionsTable, default
 	function dropdown:ClearSelections()
 		dropdown:SetSelections({})
 	end
+
+
 	
 	return dropdown
 end
 
 
-
+function GuiLibrary:CreateDropdown(tab, dropdownName, optionsTable, defaultSelection, callback)
+	local dropdown = Instance.new("TextButton")
+	dropdown.Name = dropdownName
+	dropdown.Size = UDim2.new(1, 0, 0, 35)
+	dropdown.BackgroundColor3 = Theme.Secondary
+	dropdown.BorderSizePixel = 0
+	dropdown.Text = ""
+	dropdown.Parent = tab.Frame
+	
+	local dropdownCorner = Instance.new("UICorner")
+	dropdownCorner.CornerRadius = UDim.new(0, 8)
+	dropdownCorner.Parent = dropdown
+	
+	local label = Instance.new("TextLabel")
+	label.Name = "Label"
+	label.Size = UDim2.new(0.7, 0, 1, 0)
+	label.Position = UDim2.new(0, 15, 0, 0)
+	label.BackgroundTransparency = 1
+	label.Text = dropdownName
+	label.TextColor3 = Theme.Text
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Font = Enum.Font.Gotham
+	label.Parent = dropdown
+	
+	local valueLabel = Instance.new("TextLabel")
+	valueLabel.Name = "Value"
+	valueLabel.Size = UDim2.new(0.25, 0, 1, 0)
+	valueLabel.Position = UDim2.new(0.75, 0, 0, 0)
+	valueLabel.BackgroundTransparency = 1
+	valueLabel.Text = defaultSelection or "Select..."
+	valueLabel.TextColor3 = Theme.TextSecondary
+	valueLabel.TextSize = 12
+	valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+	valueLabel.Font = Enum.Font.Gotham
+	valueLabel.Parent = dropdown
+	
+	local arrow = Instance.new("TextLabel")
+	arrow.Name = "Arrow"
+	arrow.Size = UDim2.new(0, 20, 0, 20)
+	arrow.Position = UDim2.new(1, -25, 0.5, -10)
+	arrow.BackgroundTransparency = 1
+	arrow.Text = "▼"
+	arrow.TextColor3 = Theme.TextSecondary
+	arrow.TextSize = 12
+	arrow.Font = Enum.Font.Gotham
+	arrow.Parent = dropdown
+	
+	-- Dropdown Options
+	local optionsFrame = Instance.new("ScrollingFrame")
+	optionsFrame.Name = "Options"
+	optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+	optionsFrame.Position = UDim2.new(0, 0, 1, 5)
+	optionsFrame.BackgroundColor3 = Theme.Secondary
+	optionsFrame.BorderSizePixel = 0
+	optionsFrame.ScrollBarThickness = 4
+	optionsFrame.ScrollBarImageColor3 = Theme.Accent
+	optionsFrame.Visible = false
+	optionsFrame.ClipsDescendants = true
+	optionsFrame.Parent = dropdown
+	
+	local optionsCorner = Instance.new("UICorner")
+	optionsCorner.CornerRadius = UDim.new(0, 8)
+	optionsCorner.Parent = optionsFrame
+	
+	local optionsLayout = Instance.new("UIListLayout")
+	optionsLayout.Padding = UDim.new(0, 2)
+	optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	optionsLayout.Parent = optionsFrame
+	
+	local optionsPadding = Instance.new("UIPadding")
+	optionsPadding.PaddingTop = UDim.new(0, 5)
+	optionsPadding.PaddingBottom = UDim.new(0, 5)
+	optionsPadding.PaddingLeft = UDim.new(0, 5)
+	optionsPadding.PaddingRight = UDim.new(0, 5)
+	optionsPadding.Parent = optionsFrame
+	
+	local isOpen = false
+	local selectedOption = defaultSelection
+	
+	-- Process options table (supports both array and category table)
+	local allOptions = {}
+	local categories = {}
+	
+	if type(optionsTable) == "table" then
+		-- Check if it's a category table (has string keys that aren't numbers)
+		local isCategoryTable = false
+		for k, v in pairs(optionsTable) do
+			if type(k) == "string" and not tonumber(k) then
+				isCategoryTable = true
+				break
+			end
+		end
+		
+		if isCategoryTable then
+			-- It's a category table like {food = {"banana", "mango"}, drinks = {"water", "juice"}}
+			categories = optionsTable
+			for categoryName, items in pairs(optionsTable) do
+				if type(items) == "table" then
+					for _, item in ipairs(items) do
+						table.insert(allOptions, {
+							value = item,
+							category = categoryName
+						})
+					end
+				else
+					table.insert(allOptions, {
+						value = items,
+						category = categoryName
+					})
+				end
+			end
+		else
+			-- It's a simple array table like {"banana", "mango", "apple"}
+			for _, item in ipairs(optionsTable) do
+				table.insert(allOptions, {
+					value = item,
+					category = nil
+				})
+			end
+		end
+	end
+	
+	-- Create category sections if we have categories
+	local categorySections = {}
+	if next(categories) then
+		for categoryName, items in pairs(categories) do
+			-- Category header
+			local categoryHeader = Instance.new("TextLabel")
+			categoryHeader.Name = categoryName
+			categoryHeader.Size = UDim2.new(1, 0, 0, 20)
+			categoryHeader.BackgroundTransparency = 1
+			categoryHeader.Text = categoryName
+			categoryHeader.TextColor3 = Theme.Accent
+			categoryHeader.TextSize = 12
+			categoryHeader.TextXAlignment = Enum.TextXAlignment.Left
+			categoryHeader.Font = Enum.Font.GothamBold
+			categoryHeader.LayoutOrder = #categorySections * 100
+			categoryHeader.Parent = optionsFrame
+			
+			-- Store category info
+			categorySections[categoryName] = {
+				Header = categoryHeader,
+				Items = {}
+			}
+		end
+	end
+	
+	-- Create option buttons
+	local optionButtons = {}
+	for i, optionData in ipairs(allOptions) do
+		local optionValue = optionData.value
+		local categoryName = optionData.category
+		
+		local optionButton = Instance.new("TextButton")
+		optionButton.Name = optionValue
+		optionButton.Size = UDim2.new(1, 0, 0, 25)
+		optionButton.BackgroundColor3 = Theme.Secondary
+		optionButton.BorderSizePixel = 0
+		optionButton.Text = optionValue
+		optionButton.TextColor3 = Theme.TextSecondary
+		optionButton.TextSize = 12
+		optionButton.Font = Enum.Font.Gotham
+		
+		-- Set layout order based on category
+		if categoryName and categorySections[categoryName] then
+			optionButton.LayoutOrder = categorySections[categoryName].Header.LayoutOrder + #categorySections[categoryName].Items + 1
+		else
+			optionButton.LayoutOrder = i
+		end
+		
+		optionButton.Parent = optionsFrame
+		
+		local optionCorner = Instance.new("UICorner")
+		optionCorner.CornerRadius = UDim.new(0, 6)
+		optionCorner.Parent = optionButton
+		
+		optionButton.MouseButton1Click:Connect(function()
+			selectedOption = optionValue
+			valueLabel.Text = optionValue
+			isOpen = false
+			optionsFrame.Visible = false
+			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+			
+			if callback then
+				callback(optionValue)
+			end
+		end)
+		
+		optionButton.MouseEnter:Connect(function()
+			if not isMobile then
+				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+				TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
+			end
+		end)
+		
+		optionButton.MouseLeave:Connect(function()
+			if not isMobile then
+				TweenService:Create(optionButton, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+				TweenService:Create(optionButton, TweenInfo.new(0.1), {TextColor3 = Theme.TextSecondary}):Play()
+			end
+		end)
+		
+		-- Store in category if applicable
+		if categoryName and categorySections[categoryName] then
+			table.insert(categorySections[categoryName].Items, optionButton)
+		end
+		
+		table.insert(optionButtons, optionButton)
+	end
+	
+	-- Update scrolling frame size
+	optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		optionsFrame.CanvasSize = UDim2.new(0, 0, 0, optionsLayout.AbsoluteContentSize.Y + 10)
+	end)
+	
+	-- Toggle dropdown
+	dropdown.MouseButton1Click:Connect(function()
+		isOpen = not isOpen
+		
+		if isOpen then
+			optionsFrame.Visible = true
+			local height = math.min(optionsLayout.AbsoluteContentSize.Y + 10, 250) -- Max height 250
+			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 180}):Play()
+			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, height)}):Play()
+		else
+			TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+			wait(0.2)
+			optionsFrame.Visible = false
+		end
+	end)
+	
+	-- Close dropdown when clicking outside
+	local function closeDropdown(input)
+		if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local mousePos = input.Position
+			local dropdownAbsPos = dropdown.AbsolutePosition
+			local dropdownSize = dropdown.AbsoluteSize
+			local optionsAbsPos = optionsFrame.AbsolutePosition
+			local optionsSize = optionsFrame.AbsoluteSize
+			
+			if not (mousePos.X >= dropdownAbsPos.X and mousePos.X <= dropdownAbsPos.X + dropdownSize.X and
+				   mousePos.Y >= dropdownAbsPos.Y and mousePos.Y <= dropdownAbsPos.Y + dropdownSize.Y + optionsSize.Y) then
+				isOpen = false
+				TweenService:Create(arrow, TweenInfo.new(0.2), {Rotation = 0}):Play()
+				TweenService:Create(optionsFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+				wait(0.2)
+				optionsFrame.Visible = false
+			end
+		end
+	end
+	
+	UserInputService.InputBegan:Connect(closeDropdown)
+	
+	-- Function to get current selection
+	function dropdown:GetSelection()
+		return selectedOption
+	end
+	
+	-- Function to set selection
+	function dropdown:SetSelection(selection)
+		if selection then
+			selectedOption = selection
+			valueLabel.Text = selection
+		else
+			selectedOption = nil
+			valueLabel.Text = "Select..."
+		end
+	end
+	
+	return dropdown
+end
 
 
 
