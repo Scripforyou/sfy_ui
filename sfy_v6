@@ -2336,7 +2336,6 @@ end
 
 --#add new function
 --#add function here
-
 -- KeyBind Function
 function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
     local keyBind = Instance.new("TextButton")
@@ -2365,11 +2364,11 @@ function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
     
     local keyDisplay = Instance.new("TextButton")
     keyDisplay.Name = "KeyDisplay"
-    keyDisplay.Size = UDim2.new(0, 80, 0, 25)
-    keyDisplay.Position = UDim2.new(1, -90, 0.5, -12.5)
+    keyDisplay.Size = UDim2.new(0, 60, 0, 25)
+    keyDisplay.Position = UDim2.new(1, -70, 0.5, -12.5)
     keyDisplay.BackgroundColor3 = Theme.Accent
     keyDisplay.BorderSizePixel = 0
-    keyDisplay.Text = tostring(defaultKey or "None")
+    keyDisplay.Text = "None"
     keyDisplay.TextColor3 = Theme.Text
     keyDisplay.TextSize = 12
     keyDisplay.Font = Enum.Font.Gotham
@@ -2389,30 +2388,78 @@ function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
         end
         
         local keyName = tostring(keyCode)
-        -- Clean up key names for better display
-        if keyName:match("^Keypad") then
-            keyName = "Num" .. keyName:sub(7)
-        elseif keyName:match("^Left") or keyName:match("^Right") then
-            keyName = keyName:gsub("Left", "L"):gsub("Right", "R")
-        elseif keyName == "LeftControl" then
-            keyName = "LCtrl"
-        elseif keyName == "RightControl" then
-            keyName = "RCtrl"
-        elseif keyName == "LeftShift" then
-            keyName = "LShift"
-        elseif keyName == "RightShift" then
-            keyName = "RShift"
-        elseif keyName == "LeftAlt" then
-            keyName = "LAlt"
-        elseif keyName == "RightAlt" then
-            keyName = "RAlt"
-        elseif keyName == "Return" then
-            keyName = "Enter"
-        elseif keyName == "Escape" then
-            keyName = "Esc"
-        end
         
-        return keyName
+        -- Clean up key names - only show the clean key name
+        if keyName == "Zero" then return "0"
+        elseif keyName == "One" then return "1"
+        elseif keyName == "Two" then return "2"
+        elseif keyName == "Three" then return "3"
+        elseif keyName == "Four" then return "4"
+        elseif keyName == "Five" then return "5"
+        elseif keyName == "Six" then return "6"
+        elseif keyName == "Seven" then return "7"
+        elseif keyName == "Eight" then return "8"
+        elseif keyName == "Nine" then return "9"
+        
+        -- Function keys
+        elseif keyName:match("^F%d+$") then
+            return keyName
+            
+        -- Letters (A-Z)
+        elseif keyName:match("^[A-Z]$") then
+            return keyName
+            
+        -- Numpad keys
+        elseif keyName:match("^Keypad") then
+            return "Num" .. keyName:sub(7)
+            
+        -- Modifier keys
+        elseif keyName == "LeftControl" then return "LCtrl"
+        elseif keyName == "RightControl" then return "RCtrl"
+        elseif keyName == "LeftShift" then return "LShift"
+        elseif keyName == "RightShift" then return "RShift"
+        elseif keyName == "LeftAlt" then return "LAlt"
+        elseif keyName == "RightAlt" then return "RAlt"
+        
+        -- Special keys
+        elseif keyName == "Return" then return "Enter"
+        elseif keyName == "Escape" then return "Esc"
+        elseif keyName == "Backspace" then return "Backsp"
+        elseif keyName == "Tab" then return "Tab"
+        elseif keyName == "Space" then return "Space"
+        elseif keyName == "CapsLock" then return "Caps"
+        elseif keyName == "Insert" then return "Ins"
+        elseif keyName == "Delete" then return "Del"
+        elseif keyName == "Home" then return "Home"
+        elseif keyName == "End" then return "End"
+        elseif keyName == "PageUp" then return "PgUp"
+        elseif keyName == "PageDown" then return "PgDn"
+        
+        -- Arrow keys
+        elseif keyName == "Up" then return "↑"
+        elseif keyName == "Down" then return "↓"
+        elseif keyName == "Left" then return "←"
+        elseif keyName == "Right" then return "→"
+        
+        -- Symbols
+        elseif keyName == "Minus" then return "-"
+        elseif keyName == "Equals" then return "="
+        elseif keyName == "LeftBracket" then return "["
+        elseif keyName == "RightBracket" then return "]"
+        elseif keyName == "Backslash" then return "\\"
+        elseif keyName == "Semicolon" then return ";"
+        elseif keyName == "Quote" then return "'"
+        elseif keyName == "Comma" then return ","
+        elseif keyName == "Period" then return "."
+        elseif keyName == "Slash" then return "/"
+        elseif keyName == "Backquote" then return "`"
+        
+        -- Remove "Enum.KeyCode." prefix if it exists
+        elseif keyName:find("Enum.KeyCode.") then
+            return keyName:gsub("Enum.KeyCode.", "")
+        else
+            return keyName
+        end
     end
     
     local function updateDisplay()
@@ -2558,6 +2605,28 @@ function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
     
     return keyBindObj
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
