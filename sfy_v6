@@ -2137,242 +2137,6 @@ end
 
 --#add function here
 
--- KeyBind Function
-function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
-    local keyBind = Instance.new("TextButton")
-    keyBind.Name = "KeyBind_" .. bindName
-    keyBind.Size = UDim2.new(1, 0, 0, 35)
-    keyBind.BackgroundColor3 = Theme.Secondary
-    keyBind.BorderSizePixel = 0
-    keyBind.Text = ""
-    keyBind.Parent = tab.Frame
-    
-    local keyBindCorner = Instance.new("UICorner")
-    keyBindCorner.CornerRadius = UDim.new(0, 8)
-    keyBindCorner.Parent = keyBind
-    
-    local label = Instance.new("TextLabel")
-    label.Name = "Label"
-    label.Size = UDim2.new(0.7, 0, 1, 0)
-    label.Position = UDim2.new(0, 15, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = bindName
-    label.TextColor3 = Theme.Text
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Font = Enum.Font.Gotham
-    label.Parent = keyBind
-    
-    local keyDisplay = Instance.new("TextButton")
-    keyDisplay.Name = "KeyDisplay"
-    keyDisplay.Size = UDim2.new(0, 60, 0, 25)
-    keyDisplay.Position = UDim2.new(1, -70, 0.5, -12.5)
-    keyDisplay.BackgroundColor3 = Theme.Accent
-    keyDisplay.BorderSizePixel = 0
-    keyDisplay.Text = tostring(defaultKey or "None")
-    keyDisplay.TextColor3 = Theme.Text
-    keyDisplay.TextSize = 12
-    keyDisplay.Font = Enum.Font.Gotham
-    keyDisplay.Parent = keyBind
-    
-    local keyDisplayCorner = Instance.new("UICorner")
-    keyDisplayCorner.CornerRadius = UDim.new(0, 6)
-    keyDisplayCorner.Parent = keyDisplay
-    
-    local listening = false
-    local currentKey = defaultKey or Enum.KeyCode.Unknown
-    local connection
-    
-    local function getKeyName(keyCode)
-        if keyCode == Enum.KeyCode.Unknown then
-            return "None"
-        end
-        
-        local keyName = tostring(keyCode)
-        -- Clean up key names for better display
-        if keyName:match("^Keypad") then
-            keyName = "Num" .. keyName:sub(7)
-        elseif keyName:match("^Left") or keyName:match("^Right") then
-            keyName = keyName:gsub("Left", "L-"):gsub("Right", "R-")
-        elseif keyName == "LeftControl" or keyName == "RightControl" then
-            keyName = "Ctrl"
-        elseif keyName == "LeftShift" or keyName == "RightShift" then
-            keyName = "Shift"
-        elseif keyName == "LeftAlt" or keyName == "RightAlt" then
-            keyName = "Alt"
-        end
-        
-        return keyName
-    end
-    
-    local function updateDisplay()
-        keyDisplay.Text = getKeyName(currentKey)
-    end
-    
-    local function startListening()
-        listening = true
-        keyDisplay.BackgroundColor3 = Theme.Success
-        keyDisplay.Text = "Press Key..."
-        
-        -- Disconnect previous connection if exists
-        if connection then
-            connection:Disconnect()
-        end
-        
-        -- Listen for key input
-        connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-            if gameProcessed then return end
-            
-            if input.UserInputType == Enum.UserInputType.Keyboard then
-                currentKey = input.KeyCode
-                listening = false
-                keyDisplay.BackgroundColor3 = Theme.Accent
-                updateDisplay()
-                
-                if connection then
-                    connection:Disconnect()
-                    connection = nil
-                end
-                
-                if callback then
-                    callback(currentKey)
-                end
-            elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
-                -- Allow mouse buttons too
-                currentKey = Enum.KeyCode.LeftControl -- Use LeftControl as placeholder for mouse buttons
-                listening = false
-                keyDisplay.BackgroundColor3 = Theme.Accent
-                keyDisplay.Text = "L-Ctrl" -- Mouse button representation
-                
-                if connection then
-                    connection:Disconnect()
-                    connection = nil
-                end
-                
-                if callback then
-                    callback(currentKey)
-                end
-            end
-        end)
-        
-        -- Cancel listening if clicked outside or escape pressed
-        local cancelConnection
-        cancelConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                -- Check if click is outside the key display
-                local mousePos = input.Position
-                local displayAbsPos = keyDisplay.AbsolutePosition
-                local displaySize = keyDisplay.AbsoluteSize
-                
-                if not (mousePos.X >= displayAbsPos.X and mousePos.X <= displayAbsPos.X + displaySize.X and
-                       mousePos.Y >= displayAbsPos.Y and mousePos.Y <= displayAbsPos.Y + displaySize.Y) then
-                    listening = false
-                    keyDisplay.BackgroundColor3 = Theme.Accent
-                    updateDisplay()
-                    
-                    if connection then
-                        connection:Disconnect()
-                        connection = nil
-                    end
-                    
-                    if cancelConnection then
-                        cancelConnection:Disconnect()
-                        cancelConnection = nil
-                    end
-                end
-            elseif input.KeyCode == Enum.KeyCode.Escape then
-                listening = false
-                keyDisplay.BackgroundColor3 = Theme.Accent
-                updateDisplay()
-                
-                if connection then
-                    connection:Disconnect()
-                    connection = nil
-                end
-                
-                if cancelConnection then
-                    cancelConnection:Disconnect()
-                    cancelConnection = nil
-                end
-            end
-        end)
-    end
-    
-    -- Key display click event
-    keyDisplay.MouseButton1Click:Connect(function()
-        if not listening then
-            startListening()
-        end
-    end)
-    
-    -- Main button click event (alternative way to start listening)
-    keyBind.MouseButton1Click:Connect(function()
-        if not listening then
-            startListening()
-        end
-    end)
-    
-    -- Button effects
-    keyDisplay.MouseEnter:Connect(function()
-        if not isMobile and not listening then
-            TweenService:Create(keyDisplay, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
-        end
-    end)
-    
-    keyDisplay.MouseLeave:Connect(function()
-        if not isMobile and not listening then
-            TweenService:Create(keyDisplay, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Accent}):Play()
-        end
-    end)
-    
-    keyBind.MouseEnter:Connect(function()
-        if not isMobile then
-            TweenService:Create(keyBind, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
-        end
-    end)
-    
-    keyBind.MouseLeave:Connect(function()
-        if not isMobile then
-            TweenService:Create(keyBind, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
-        end
-    end)
-    
-    -- Initialize display
-    updateDisplay()
-    
-    -- Create keybind object with methods
-    local keyBindObj = {}
-    
-    function keyBindObj:GetKey()
-        return currentKey
-    end
-    
-    function keyBindObj:SetKey(keyCode)
-        currentKey = keyCode or Enum.KeyCode.Unknown
-        updateDisplay()
-    end
-    
-    function keyBindObj:SetToNone()
-        currentKey = Enum.KeyCode.Unknown
-        updateDisplay()
-    end
-    
-    function keyBindObj:GetKeyName()
-        return getKeyName(currentKey)
-    end
-    
-    function keyBindObj:IsListening()
-        return listening
-    end
-    
-    function keyBindObj:GetInstance()
-        return keyBind
-    end
-    
-    return keyBindObj
-end
-
-
 -- Number Input Field Function
 function GuiLibrary:CreateNumberInput(tab, inputName, placeholder, defaultValue, minValue, maxValue, callback)
     local inputFrame = Instance.new("Frame")
@@ -2568,6 +2332,247 @@ function GuiLibrary:CreateNumberInput(tab, inputName, placeholder, defaultValue,
     
     return numberInputObj
 end
+
+
+--#add new function
+--#add function here
+
+-- KeyBind Function
+function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
+    local keyBind = Instance.new("TextButton")
+    keyBind.Name = "KeyBind_" .. bindName
+    keyBind.Size = UDim2.new(1, 0, 0, 35)
+    keyBind.BackgroundColor3 = Theme.Secondary
+    keyBind.BorderSizePixel = 0
+    keyBind.Text = ""
+    keyBind.Parent = tab.Frame
+    
+    local keyBindCorner = Instance.new("UICorner")
+    keyBindCorner.CornerRadius = UDim.new(0, 8)
+    keyBindCorner.Parent = keyBind
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = bindName
+    label.TextColor3 = Theme.Text
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Font = Enum.Font.Gotham
+    label.Parent = keyBind
+    
+    local keyDisplay = Instance.new("TextButton")
+    keyDisplay.Name = "KeyDisplay"
+    keyDisplay.Size = UDim2.new(0, 80, 0, 25)
+    keyDisplay.Position = UDim2.new(1, -90, 0.5, -12.5)
+    keyDisplay.BackgroundColor3 = Theme.Accent
+    keyDisplay.BorderSizePixel = 0
+    keyDisplay.Text = tostring(defaultKey or "None")
+    keyDisplay.TextColor3 = Theme.Text
+    keyDisplay.TextSize = 12
+    keyDisplay.Font = Enum.Font.Gotham
+    keyDisplay.Parent = keyBind
+    
+    local keyDisplayCorner = Instance.new("UICorner")
+    keyDisplayCorner.CornerRadius = UDim.new(0, 6)
+    keyDisplayCorner.Parent = keyDisplay
+    
+    local listening = false
+    local currentKey = defaultKey or Enum.KeyCode.Unknown
+    local connection
+
+    local function getKeyName(keyCode)
+        if keyCode == Enum.KeyCode.Unknown then
+            return "None"
+        end
+        
+        local keyName = tostring(keyCode)
+        -- Clean up key names for better display
+        if keyName:match("^Keypad") then
+            keyName = "Num" .. keyName:sub(7)
+        elseif keyName:match("^Left") or keyName:match("^Right") then
+            keyName = keyName:gsub("Left", "L"):gsub("Right", "R")
+        elseif keyName == "LeftControl" then
+            keyName = "LCtrl"
+        elseif keyName == "RightControl" then
+            keyName = "RCtrl"
+        elseif keyName == "LeftShift" then
+            keyName = "LShift"
+        elseif keyName == "RightShift" then
+            keyName = "RShift"
+        elseif keyName == "LeftAlt" then
+            keyName = "LAlt"
+        elseif keyName == "RightAlt" then
+            keyName = "RAlt"
+        elseif keyName == "Return" then
+            keyName = "Enter"
+        elseif keyName == "Escape" then
+            keyName = "Esc"
+        end
+        
+        return keyName
+    end
+    
+    local function updateDisplay()
+        keyDisplay.Text = getKeyName(currentKey)
+    end
+    
+    local function startListening()
+        listening = true
+        keyDisplay.BackgroundColor3 = Theme.Success
+        keyDisplay.Text = "Press Key..."
+        
+        -- Disconnect previous connection if exists
+        if connection then
+            connection:Disconnect()
+        end
+        
+        -- Listen for key input
+        connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            
+            if input.UserInputType == Enum.UserInputType.Keyboard then
+                -- Don't allow Escape to be set as a keybind (used for canceling)
+                if input.KeyCode == Enum.KeyCode.Escape then
+                    listening = false
+                    keyDisplay.BackgroundColor3 = Theme.Accent
+                    updateDisplay()
+                    
+                    if connection then
+                        connection:Disconnect()
+                        connection = nil
+                    end
+                    return
+                end
+                
+                -- Set the new key
+                currentKey = input.KeyCode
+                listening = false
+                keyDisplay.BackgroundColor3 = Theme.Accent
+                updateDisplay()
+                
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+                
+                if callback then
+                    callback(currentKey)
+                end
+            end
+        end)
+    end
+    
+    -- Key display click event - starts listening for key press
+    keyDisplay.MouseButton1Click:Connect(function()
+        if not listening then
+            startListening()
+        end
+    end)
+    
+    -- Button effects
+    keyDisplay.MouseEnter:Connect(function()
+        if not isMobile and not listening then
+            TweenService:Create(keyDisplay, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+        end
+    end)
+    
+    keyDisplay.MouseLeave:Connect(function()
+        if not isMobile and not listening then
+            TweenService:Create(keyDisplay, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Accent}):Play()
+        end
+    end)
+    
+    keyBind.MouseEnter:Connect(function()
+        if not isMobile then
+            TweenService:Create(keyBind, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+        end
+    end)
+    
+    keyBind.MouseLeave:Connect(function()
+        if not isMobile then
+            TweenService:Create(keyBind, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+        end
+    end)
+    
+    -- Initialize display
+    updateDisplay()
+    
+    -- Create keybind object with methods
+    local keyBindObj = {}
+    
+    function keyBindObj:GetKey()
+        return currentKey
+    end
+    
+    function keyBindObj:SetKey(keyCode)
+        currentKey = keyCode or Enum.KeyCode.Unknown
+        updateDisplay()
+        
+        if callback then
+            callback(currentKey)
+        end
+    end
+    
+    function keyBindObj:SetToNone()
+        currentKey = Enum.KeyCode.Unknown
+        updateDisplay()
+        
+        if callback then
+            callback(currentKey)
+        end
+    end
+    
+    function keyBindObj:GetKeyName()
+        return getKeyName(currentKey)
+    end
+    
+    function keyBindObj:IsListening()
+        return listening
+    end
+    
+    function keyBindObj:StartListening()
+        if not listening then
+            startListening()
+        end
+    end
+    
+    function keyBindObj:StopListening()
+        if listening then
+            listening = false
+            keyDisplay.BackgroundColor3 = Theme.Accent
+            updateDisplay()
+            
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end
+    
+    function keyBindObj:GetInstance()
+        return keyBind
+    end
+    
+    return keyBindObj
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -- Export the library
