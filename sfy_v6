@@ -2135,5 +2135,203 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
     return multiDropdownObj
 end
 
+--#add function here
+-- Number Input Field Function
+function GuiLibrary:CreateNumberInput(tab, inputName, placeholder, defaultValue, minValue, maxValue, callback)
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Name = "NumberInput_" .. inputName
+    inputFrame.Size = UDim2.new(1, 0, 0, 35)
+    inputFrame.BackgroundTransparency = 1
+    inputFrame.Parent = tab.Frame
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.4, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = inputName
+    label.TextColor3 = Theme.Text
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Font = Enum.Font.Gotham
+    label.Parent = inputFrame
+    
+    local inputContainer = Instance.new("Frame")
+    inputContainer.Name = "InputContainer"
+    inputContainer.Size = UDim2.new(0.6, 0, 1, 0)
+    inputContainer.Position = UDim2.new(0.4, 0, 0, 0)
+    inputContainer.BackgroundTransparency = 1
+    inputContainer.Parent = inputFrame
+    
+    local textBox = Instance.new("TextBox")
+    textBox.Name = "TextBox"
+    textBox.Size = UDim2.new(0.7, 0, 1, 0)
+    textBox.Position = UDim2.new(0, 0, 0, 0)
+    textBox.BackgroundColor3 = Theme.Secondary
+    textBox.BorderSizePixel = 0
+    textBox.Text = tostring(defaultValue or "")
+    textBox.PlaceholderText = placeholder or "Enter number..."
+    textBox.TextColor3 = Theme.Text
+    textBox.PlaceholderColor3 = Theme.TextSecondary
+    textBox.TextSize = 14
+    textBox.Font = Enum.Font.Gotham
+    textBox.ClearTextOnFocus = false
+    textBox.Parent = inputContainer
+    
+    local textBoxCorner = Instance.new("UICorner")
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+    textBoxCorner.Parent = textBox
+    
+    local textBoxPadding = Instance.new("UIPadding")
+    textBoxPadding.PaddingLeft = UDim.new(0, 10)
+    textBoxPadding.PaddingRight = UDim.new(0, 10)
+    textBoxPadding.Parent = textBox
+    
+    -- Stepper buttons
+    local stepperFrame = Instance.new("Frame")
+    stepperFrame.Name = "Stepper"
+    stepperFrame.Size = UDim2.new(0.3, 0, 1, 0)
+    stepperFrame.Position = UDim2.new(0.7, 5, 0, 0)
+    stepperFrame.BackgroundTransparency = 1
+    stepperFrame.Parent = inputContainer
+    
+    local increaseButton = Instance.new("TextButton")
+    increaseButton.Name = "Increase"
+    increaseButton.Size = UDim2.new(0.5, -2, 1, 0)
+    increaseButton.Position = UDim2.new(0.5, 2, 0, 0)
+    increaseButton.BackgroundColor3 = Theme.Accent
+    increaseButton.BorderSizePixel = 0
+    increaseButton.Text = "+"
+    increaseButton.TextColor3 = Theme.Text
+    increaseButton.TextSize = 14
+    increaseButton.Font = Enum.Font.GothamBold
+    increaseButton.Parent = stepperFrame
+    
+    local decreaseButton = Instance.new("TextButton")
+    decreaseButton.Name = "Decrease"
+    decreaseButton.Size = UDim2.new(0.5, -2, 1, 0)
+    decreaseButton.Position = UDim2.new(0, 0, 0, 0)
+    decreaseButton.BackgroundColor3 = Theme.Accent
+    decreaseButton.BorderSizePixel = 0
+    decreaseButton.Text = "-"
+    decreaseButton.TextColor3 = Theme.Text
+    decreaseButton.TextSize = 14
+    decreaseButton.Font = Enum.Font.GothamBold
+    decreaseButton.Parent = stepperFrame
+    
+    local stepperCorner = Instance.new("UICorner")
+    stepperCorner.CornerRadius = UDim.new(0, 6)
+    stepperCorner.Parent = increaseButton
+    
+    local stepperCorner2 = Instance.new("UICorner")
+    stepperCorner2.CornerRadius = UDim.new(0, 6)
+    stepperCorner2.Parent = decreaseButton
+    
+    -- Set min/max values
+    local min = minValue or -math.huge
+    local max = maxValue or math.huge
+    local currentValue = tonumber(defaultValue) or 0
+    
+    local function validateNumber(value)
+        local num = tonumber(value)
+        if num then
+            return math.clamp(num, min, max)
+        end
+        return currentValue
+    end
+    
+    local function updateValue(newValue, triggerCallback)
+        local validatedValue = validateNumber(newValue)
+        currentValue = validatedValue
+        textBox.Text = tostring(validatedValue)
+        
+        if triggerCallback and callback then
+            callback(validatedValue)
+        end
+    end
+    
+    local function stepValue(amount)
+        local newValue = currentValue + amount
+        updateValue(newValue, true)
+    end
+    
+    -- TextBox effects and validation
+    textBox.Focused:Connect(function()
+        TweenService:Create(textBox, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Accent}):Play()
+    end)
+    
+    textBox.FocusLost:Connect(function(enterPressed)
+        TweenService:Create(textBox, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Secondary}):Play()
+        updateValue(textBox.Text, true)
+    end)
+    
+    -- Stepper button events
+    increaseButton.MouseButton1Click:Connect(function()
+        stepValue(1)
+    end)
+    
+    decreaseButton.MouseButton1Click:Connect(function()
+        stepValue(-1)
+    end)
+    
+    -- Button hover effects
+    local function setupButtonEffects(button)
+        button.MouseEnter:Connect(function()
+            if not isMobile then
+                TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Theme.AccentHover}):Play()
+            end
+        end)
+        
+        button.MouseLeave:Connect(function()
+            if not isMobile then
+                TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Accent}):Play()
+            end
+        end)
+        
+        button.MouseButton1Click:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Success}):Play()
+            TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Accent}):Play()
+        end)
+    end
+    
+    setupButtonEffects(increaseButton)
+    setupButtonEffects(decreaseButton)
+    
+    -- Initialize with default value
+    updateValue(defaultValue or 0, false)
+    
+    -- Create input object with methods
+    local numberInputObj = {}
+    
+    function numberInputObj:GetValue()
+        return currentValue
+    end
+    
+    function numberInputObj:SetValue(value)
+        updateValue(value, false)
+    end
+    
+    function numberInputObj:SetRange(newMin, newMax)
+        min = newMin or min
+        max = newMax or max
+        updateValue(currentValue, false) -- Re-validate current value
+    end
+    
+    function numberInputObj:SetPlaceholder(text)
+        textBox.PlaceholderText = text or ""
+    end
+    
+    function numberInputObj:SetStepAmount(amount)
+        -- Optional: Customize step amount if needed
+    end
+    
+    function numberInputObj:GetInstance()
+        return inputFrame
+    end
+    
+    return numberInputObj
+end
+
+
 -- Export the library
 return GuiLibrary
