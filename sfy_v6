@@ -2136,27 +2136,6 @@ function GuiLibrary:CreateMultiDropdown(tab, dropdownName, options, defaultSelec
 end
 
 --#add function here
--- Helper function to check if a keybind is pressed
-function GuiLibrary:IsKeyBindPressed(keyBindObj, input)
-    if input.UserInputType == Enum.UserInputType.Keyboard then
-        return input.KeyCode == keyBindObj:GetKey()
-    end
-    return false
-end
-
--- Example of using the key detection:
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    
-    if GuiLibrary:IsKeyBindPressed(toggleKeybind, input) then
-        toggleMinimize()
-    end
-    
-    if GuiLibrary:IsKeyBindPressed(flyKeybind, input) then
-        -- Toggle fly
-    end
-end)
-
 
 -- KeyBind Function
 function GuiLibrary:CreateKeyBind(tab, bindName, defaultKey, callback)
