@@ -25,6 +25,19 @@ local itemDetails = {
         Transparency = 0,
         Material = Enum.Material.Wood,
         Color = Color3.fromRGB(108, 88, 75)
-    }
+    },
+    Frostling = {
+        Path = "game.Workspace.Items.Frostling.Hitbox",
+        Name = "Hitbox",
+        Class = "Part",
+        Parent = "Frostling",
+        Position = Vector3.new(51.84, 370.20, 44.86),
+        Size = Vector3.new(1.77, 0.53, 3.92),
+        Anchored = false,
+        CanCollide = false,
+        Transparency = 1,
+        Material = Enum.Material.Enum.Material.Plastic,
+        Color = Color3.fromRGB(223, 223, 222)
+},
 }
 return itemDetails
