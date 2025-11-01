@@ -1,4 +1,3 @@
--- Optional: detailed object info (for debugging and accurate targeting)
 local itemDetails = {
     Frostling = {
         Path = "game.Workspace.Items.Frostling.Hitbox",
@@ -28,3 +27,4 @@ local itemDetails = {
         Color = Color3.fromRGB(108, 88, 75)
     }
 }
+return itemDetails
