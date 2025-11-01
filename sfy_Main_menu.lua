@@ -32,7 +32,7 @@ menu:CreateToggle(MainTab, "Safty Height:", false, function(state)
     SaftyHeightEnabled = state
     local humanoid = Player.Character and Player.Character:FindFirstChild("Humanoid")
     if humanoid then
-        humanoid.HipHeight = state and SaftyHeightValue or 2
+        humanoid.HipHeight = state and SaftyHeightValue or 0
     end
 end)
 
